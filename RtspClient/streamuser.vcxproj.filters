@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="src\com\bql\streamuser\PlaystreamActivity.java">
+      <Filter>src\com\bql\streamuser</Filter>
+    </None>
+    <None Include="src\com\core\BQLBuffer.java">
+      <Filter>src\com\bql\core</Filter>
+    </None>
+    <None Include="src\com\core\BQLMediaPlayer.java">
+      <Filter>src\com\bql\core</Filter>
+    </None>
+    <None Include="jni\Android.mk">
+      <Filter>jni</Filter>
+    </None>
+    <None Include="jni\Application.mk">
+      <Filter>jni</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="jni">
+      <UniqueIdentifier>{a80895a6-3ed5-49e8-b212-90ecf1d7d2cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jni\thread">
+      <UniqueIdentifier>{6eafba49-bfc7-422c-8c7b-0c6f4353ea33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jni\buffer">
+      <UniqueIdentifier>{74cabed3-f3f2-4055-a919-40b4f237e6dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jni\codec">
+      <UniqueIdentifier>{f1668478-f6d6-4399-af9b-01913d252182}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jni\player">
+      <UniqueIdentifier>{12ebccf1-c9b0-46e1-af49-52775a5c8469}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jni\player\local">
+      <UniqueIdentifier>{680f08b2-08d6-4553-bdde-087f8e13bf03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jni\player\rtsp">
+      <UniqueIdentifier>{70e5efa3-d6bc-4730-86b9-c273871fe627}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{ffbfdfeb-712f-4dd6-835c-280fe9ec08f7}</UniqueIdentifier>
+      <Extensions>*.java</Extensions>
+    </Filter>
+    <Filter Include="src\com">
+      <UniqueIdentifier>{45594ae1-fb93-41f8-af7c-0d6764e5e622}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\com\bql">
+      <UniqueIdentifier>{1dc3fe21-6db4-4ff6-b1c3-45930f05aeaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\com\bql\streamuser">
+      <UniqueIdentifier>{f0d3eb45-b9b7-4c9d-a365-6415c5250ca2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\com\bql\core">
+      <UniqueIdentifier>{196dbf11-d49b-450a-8aeb-50a7d415d06a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="jni\src\com_bql_MediaPlayer_Native.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\com_bql_MSG_Native.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\common.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\JNI_load.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\Streamer.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\buffer\Buffer.cpp">
+      <Filter>jni\buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\buffer\BufferManager.cpp">
+      <Filter>jni\buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\codec\AacDecoder.cpp">
+      <Filter>jni\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\codec\MediaDecoder.cpp">
+      <Filter>jni\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\codec\MediaEncoder.cpp">
+      <Filter>jni\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\player\BasePlayer.cpp">
+      <Filter>jni\player</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\player\local\FfmpegPlayer.cpp">
+      <Filter>jni\player\local</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\player\rtsp\RtspClientPlayer.cpp">
+      <Filter>jni\player\rtsp</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\player\rtsp\RtspMediaSink.cpp">
+      <Filter>jni\player\rtsp</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\thread\AudioDecodeThread.cpp">
+      <Filter>jni\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\thread\VideoDecodeThread.cpp">
+      <Filter>jni\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\codec\H264Decoder.cpp">
+      <Filter>jni\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\codec\HwAudioDecoder.cpp">
+      <Filter>jni\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\codec\HwAudioEncoder.cpp">
+      <Filter>jni\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\codec\HwCodec.cpp">
+      <Filter>jni\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\codec\HwVideoDecoder.cpp">
+      <Filter>jni\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\codec\HwVideoEncoder.cpp">
+      <Filter>jni\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\codec\JPEGDecoder.cpp">
+      <Filter>jni\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\src\yuv2rgb.c">
+      <Filter>jni</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jni\src\com_bql_MediaPlayer_Native.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\com_bql_MSG_Native.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\common.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\JNI_load.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\Streamer.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\buffer\Buffer.h">
+      <Filter>jni\buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\buffer\BufferManager.h">
+      <Filter>jni\buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\codec\AacDecoder.h">
+      <Filter>jni\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\codec\MediaDecoder.h">
+      <Filter>jni\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\codec\MediaEncoder.h">
+      <Filter>jni\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\player\BasePlayer.h">
+      <Filter>jni\player</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\player\local\FfmpegPlayer.h">
+      <Filter>jni\player\local</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\player\rtsp\RtspClientPlayer.h">
+      <Filter>jni\player\rtsp</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\player\rtsp\RtspMediaSink.h">
+      <Filter>jni\player\rtsp</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\thread\AudioDecodeThread.h">
+      <Filter>jni\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\thread\VideoDecodeThread.h">
+      <Filter>jni\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\codec\H264Decoder.h">
+      <Filter>jni\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\codec\HwAudioDecoder.h">
+      <Filter>jni\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\codec\HwAudioEncoder.h">
+      <Filter>jni\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\codec\HwCodec.h">
+      <Filter>jni\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\codec\HwVideoDecoder.h">
+      <Filter>jni\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\codec\HwVideoEncoder.h">
+      <Filter>jni\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\codec\JPEGDecoder.h">
+      <Filter>jni\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\src\yuv2rgb.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="AndroidManifest.xml" />
+  </ItemGroup>
+</Project>

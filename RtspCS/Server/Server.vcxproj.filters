@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Source\Def.cpp" />
+    <ClCompile Include="..\Source\ListenSock.cpp" />
+    <ClCompile Include="..\Source\Main.cpp" />
+    <ClCompile Include="..\Source\Mutex.cpp" />
+    <ClCompile Include="..\Source\NTime.cpp" />
+    <ClCompile Include="..\Source\PrintLog.cpp" />
+    <ClCompile Include="..\Source\Sock.cpp" />
+    <ClCompile Include="..\Source\TcpSock.cpp" />
+    <ClCompile Include="..\Source\Thread.cpp" />
+    <ClCompile Include="..\Source\TsParser.cpp" />
+    <ClCompile Include="..\Source\UdpSock.cpp" />
+    <ClCompile Include="..\Source\Server\DataSrc.cpp" />
+    <ClCompile Include="..\Source\Server\RtspSession.cpp" />
+    <ClCompile Include="..\Source\Server\RtspSvr.cpp" />
+    <ClCompile Include="..\Source\Server\TsFileReader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Source\Def.h" />
+    <ClInclude Include="..\Source\ListenSock.h" />
+    <ClInclude Include="..\Source\Mutex.h" />
+    <ClInclude Include="..\Source\NTime.h" />
+    <ClInclude Include="..\Source\PrintLog.h" />
+    <ClInclude Include="..\Source\Sock.h" />
+    <ClInclude Include="..\Source\TcpSock.h" />
+    <ClInclude Include="..\Source\Thread.h" />
+    <ClInclude Include="..\Source\TsHeader.h" />
+    <ClInclude Include="..\Source\TsParser.h" />
+    <ClInclude Include="..\Source\UdpSock.h" />
+    <ClInclude Include="..\Source\Server\DataSrc.h" />
+    <ClInclude Include="..\Source\Server\RtspSession.h" />
+    <ClInclude Include="..\Source\Server\RtspSvr.h" />
+    <ClInclude Include="..\Source\Server\TsFileReader.h" />
+  </ItemGroup>
+</Project>

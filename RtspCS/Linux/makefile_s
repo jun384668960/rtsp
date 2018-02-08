@@ -1,0 +1,27 @@
+#
+# makefile for x86
+#
+
+TOPDIR = ..
+
+NAME = x86-Server
+CROSS = 
+DEBUG = 1
+BINARY = exec
+TARGET ?= Server
+INSTALL_PATH = .
+
+SRCPATH = $(TOPDIR)/Source
+SRCSUBDIR = Server
+
+INCDIR = $(TOPDIR)/Source \
+	 $(TOPDIR)/Source/Server \
+
+CFLAGS += -Wall -D__STDC_CONSTANT_MACROS
+
+LIBDIR = 
+LIBS = pthread 
+USER_LIBS =
+LDFLAGS = -ldl
+
+include common.mk

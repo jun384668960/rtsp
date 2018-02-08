@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7006FE10-BA00-4212-A7D7-1FADA70B9134}</ProjectGuid>
+	<ProjectName>streamuser_1.3.1</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /build "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /clean "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /rebuild "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeReBuildCommandLine>
+    <NMakeIncludeSearchPath>D:\ndk\platforms\android-19\arch-arm\usr\include;$(ProjectDir)\jni/src/streamer/../../3rd/liblive/UsageEnvironment/include;$(ProjectDir)\jni/src/streamer/../../3rd/liblive/BasicUsageEnvironment/include;$(ProjectDir)\jni/src/streamer/../../3rd/liblive/groupsock/include;$(ProjectDir)\jni/src/streamer/../../3rd/liblive/liveMedia/include;$(ProjectDir)\jni/src/streamer/../../3rd/libjpeg-turbo-1.4.2;$(ProjectDir)\jni/src/streamer/../../3rd/libffmpeg;$(ProjectDir)\jni/src/streamer/../../3rd/libxml;$(ProjectDir)\jni/src/streamer/../../3rd/libhwcodec;$(ProjectDir)\jni/src/streamer;D:\ndk\sources\cxx-stl\stlport\stlport;D:\ndk\sources\cxx-stl\gabi++\include;D:\ndk\toolchains\arm-linux-androideabi-4.8\prebuilt\windows\lib\gcc\arm-linux-androideabi\4.8\include;D:\ndk\toolchains\arm-linux-androideabi-4.8\prebuilt\windows\lib\gcc\arm-linux-androideabi\4.8\include-fixed;D:\ndk\platforms\android-19\arch-arm\usr\include;D:\ndk\sources\cxx-stl\system\include;D:\ndk\toolchains\arm-linux-androideabi-4.8\prebuilt\windows-x86_64\lib\gcc\arm-linux-androideabi\4.8\include;D:\ndk\toolchains\arm-linux-androideabi-4.8\prebuilt\windows-x86_64\lib\gcc\arm-linux-androideabi\4.8\include-fixed;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>$(ProjectDir)\gcc_Debug.h;$(VISUALGDB_DIR)\gcc_compat.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakePreprocessorDefinitions>__VisualGDB_CFG_Debug;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <IncludePath />
+    <ReferencePath />
+    <LibraryPath />
+    <NMakeOutput>$(ProjectDir)streamuser-Debug.vgdbsettings</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /build "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /clean "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /rebuild "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeReBuildCommandLine>
+    <NMakeIncludeSearchPath>D:\ndk\platforms\android-19\arch-arm\usr\include;D:\ndk\sources\cxx-stl\system\include;D:\ndk\toolchains\arm-linux-androideabi-4.8\prebuilt\windows-x86_64\lib\gcc\arm-linux-androideabi\4.8\include;D:\ndk\toolchains\arm-linux-androideabi-4.8\prebuilt\windows-x86_64\lib\gcc\arm-linux-androideabi\4.8\include-fixed;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>$(ProjectDir)\gcc_Release.h;$(VISUALGDB_DIR)\gcc_compat.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakePreprocessorDefinitions>__VisualGDB_CFG_Release;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <IncludePath />
+    <ReferencePath />
+    <LibraryPath />
+    <NMakeOutput>$(ProjectDir)streamuser-Release.vgdbsettings</NMakeOutput>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Xml Include="AndroidManifest.xml">
+      <SubType>Designer</SubType>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="jni\Android.mk" />
+    <None Include="jni\Application.mk" />
+    <None Include="src\com\bql\streamuser\PlaystreamActivity.java" />
+    <None Include="src\com\core\BQLBuffer.java" />
+    <None Include="src\com\core\BQLMediaPlayer.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="jni\src\buffer\Buffer.cpp" />
+    <ClCompile Include="jni\src\buffer\BufferManager.cpp" />
+    <ClCompile Include="jni\src\codec\AacDecoder.cpp" />
+    <ClCompile Include="jni\src\codec\H264Decoder.cpp" />
+    <ClCompile Include="jni\src\codec\HwAudioDecoder.cpp" />
+    <ClCompile Include="jni\src\codec\HwAudioEncoder.cpp" />
+    <ClCompile Include="jni\src\codec\HwCodec.cpp" />
+    <ClCompile Include="jni\src\codec\HwVideoDecoder.cpp" />
+    <ClCompile Include="jni\src\codec\HwVideoEncoder.cpp" />
+    <ClCompile Include="jni\src\codec\JPEGDecoder.cpp" />
+    <ClCompile Include="jni\src\codec\MediaDecoder.cpp" />
+    <ClCompile Include="jni\src\codec\MediaEncoder.cpp" />
+    <ClCompile Include="jni\src\common.cpp" />
+    <ClCompile Include="jni\src\com_bql_MediaPlayer_Native.cpp" />
+    <ClCompile Include="jni\src\com_bql_MSG_Native.cpp" />
+    <ClCompile Include="jni\src\JNI_load.cpp" />
+    <ClCompile Include="jni\src\player\BasePlayer.cpp" />
+    <ClCompile Include="jni\src\player\local\FfmpegPlayer.cpp" />
+    <ClCompile Include="jni\src\player\rtsp\RtspClientPlayer.cpp" />
+    <ClCompile Include="jni\src\player\rtsp\RtspMediaSink.cpp" />
+    <ClCompile Include="jni\src\Streamer.cpp" />
+    <ClCompile Include="jni\src\thread\AudioDecodeThread.cpp" />
+    <ClCompile Include="jni\src\thread\VideoDecodeThread.cpp" />
+    <ClCompile Include="jni\src\yuv2rgb.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jni\src\buffer\Buffer.h" />
+    <ClInclude Include="jni\src\buffer\BufferManager.h" />
+    <ClInclude Include="jni\src\codec\AacDecoder.h" />
+    <ClInclude Include="jni\src\codec\H264Decoder.h" />
+    <ClInclude Include="jni\src\codec\HwAudioDecoder.h" />
+    <ClInclude Include="jni\src\codec\HwAudioEncoder.h" />
+    <ClInclude Include="jni\src\codec\HwCodec.h" />
+    <ClInclude Include="jni\src\codec\HwVideoDecoder.h" />
+    <ClInclude Include="jni\src\codec\HwVideoEncoder.h" />
+    <ClInclude Include="jni\src\codec\JPEGDecoder.h" />
+    <ClInclude Include="jni\src\codec\MediaDecoder.h" />
+    <ClInclude Include="jni\src\codec\MediaEncoder.h" />
+    <ClInclude Include="jni\src\common.h" />
+    <ClInclude Include="jni\src\com_bql_MediaPlayer_Native.h" />
+    <ClInclude Include="jni\src\com_bql_MSG_Native.h" />
+    <ClInclude Include="jni\src\JNI_load.h" />
+    <ClInclude Include="jni\src\player\BasePlayer.h" />
+    <ClInclude Include="jni\src\player\local\FfmpegPlayer.h" />
+    <ClInclude Include="jni\src\player\rtsp\RtspClientPlayer.h" />
+    <ClInclude Include="jni\src\player\rtsp\RtspMediaSink.h" />
+    <ClInclude Include="jni\src\Streamer.h" />
+    <ClInclude Include="jni\src\thread\AudioDecodeThread.h" />
+    <ClInclude Include="jni\src\thread\VideoDecodeThread.h" />
+    <ClInclude Include="jni\src\yuv2rgb.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

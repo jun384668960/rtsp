@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source files">
+      <UniqueIdentifier>{0464cfe2-9e5c-4eba-aa5f-9d2b3fa17c2e}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header files">
+      <UniqueIdentifier>{fee19540-97ce-4d5d-8bfb-f911fa4ddb47}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource files">
+      <UniqueIdentifier>{76793d8c-0ac3-42f6-a9b3-86d615be7f47}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Java Source Files">
+      <UniqueIdentifier>{32d68915-ed89-4983-92d5-5499981aa02f}</UniqueIdentifier>
+      <Extensions>*.java</Extensions>
+    </Filter>
+    <Filter Include="Java Source Files\com">
+      <UniqueIdentifier>{b4f66c66-513f-4565-9154-3e4686661c1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Java Source Files\com\RtspServer">
+      <UniqueIdentifier>{ba460b58-c1be-42f3-8914-3a5efa924dd5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="AndroidManifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="jni\Android.mk" />
+    <None Include="jni\Application.mk" />
+    <None Include="src\com\RtspServer\RtspServer.java">
+      <Filter>Java Source Files\com\RtspServer</Filter>
+    </None>
+    <None Include="jni\Rtsp\Android.mk" />
+    <None Include="jni\Rtsp\Application.mk" />
+    <None Include="src\com\RtspServer\RtspServerAPI.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="jni\Rtsp\DynamicRTSPServer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\Rtsp\RtspServer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jni\Rtsp\DynamicRTSPServer.hh" />
+    <ClInclude Include="jni\Rtsp\RtspServer.hh" />
+  </ItemGroup>
+</Project>

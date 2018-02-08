@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+       
+	<com.core.BQLVideoView
+		android:id="@+id/bSurfaceView"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent" />
+            
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="left"
+		android:orientation="vertical" >
+		
+
+	    <Button
+	        android:id="@+id/bLocalLive"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	    	android:layout_marginBottom="12dp"
+	        android:text="预览"
+	        android:textSize="16sp" />
+
+		<Button
+        	android:id="@+id/bStop"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+ 			android:layout_marginBottom="12dp"
+        	android:text="停止"
+        	android:textSize="16sp" />
+      
+		<Button
+        	android:id="@+id/bRecIncome"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+ 			android:layout_marginBottom="12dp"
+        	android:text="转录"
+        	android:textSize="16sp" />
+		
+		<Button
+        	android:id="@+id/bRecWrite"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+ 			android:layout_marginBottom="12dp"
+        	android:text="推流"
+        	android:textSize="16sp" />		
+			
+		<Button
+        	android:id="@+id/bSH"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+ 			android:layout_marginBottom="12dp"
+        	android:text="隐藏"
+        	android:textSize="16sp" />				
+	</LinearLayout>
+        
+            
+   	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:orientation="vertical" >
+		
+		<Button
+        	android:id="@+id/bVod"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+       	 	android:text="回放"
+       	 	android:layout_marginBottom="12dp"
+        	android:textSize="16sp" />
+		
+			     
+	    <Button
+			android:id="@+id/bPause"
+	      	android:layout_width="wrap_content"
+	      	android:layout_height="wrap_content"
+	 		android:layout_marginBottom="12dp"
+	     	android:text="暂停"
+	      	android:textSize="16sp" />
+
+	    <Button
+	      	android:id="@+id/bResume"
+	      	android:layout_width="wrap_content"
+	      	android:layout_height="wrap_content"
+	 		android:layout_marginBottom="12dp"
+	      	android:text="恢复"
+	      	android:textSize="16sp" />
+	    
+		<Button
+        	android:id="@+id/bAudio"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+ 			android:layout_marginBottom="12dp"
+        	android:text="软解"
+        	android:textSize="16sp" />
+		
+ 		<Button
+        	android:id="@+id/bShot"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+ 			android:layout_marginBottom="12dp"
+        	android:text="截图"
+        	android:textSize="16sp" />
+   	    
+	</LinearLayout>
+    
+	<SeekBar
+		android:id="@+id/sbSeekVOD"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:paddingBottom="12dp"/>
+
+
+ 		
+</FrameLayout>

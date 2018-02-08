@@ -1,0 +1,3 @@
+set solib-search-path ./obj/local/armeabi
+source D:/android-ndk-r10d/prebuilt/common/gdb/common.setup
+directory D:/android-ndk-r10d/platforms/android-21/arch-arm/usr/include jni/src/streamer jni/src/hw-codec/../../3rd/libhwcodec D:/android-ndk-r10d/sources/cxx-stl/stlport/stlport D:/android-ndk-r10d/sources/cxx-stl//gabi++/include jni/src/streamer/../../3rd/librtsp/UsageEnvironment/include jni/src/streamer/../../3rd/librtsp/BasicUsageEnvironment/include jni/src/streamer/../../3rd/librtsp/groupsock/include jni/src/streamer/../../3rd/librtsp/liveMedia/include jni/src/streamer/../../3rd/librtmp jni/src/streamer/../../3rd/libffmpeg jni/src/streamer/../../3rd/libhwcodec
