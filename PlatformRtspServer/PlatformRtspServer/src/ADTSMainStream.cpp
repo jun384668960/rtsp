@@ -38,7 +38,7 @@ static unsigned const samplingFrequencyTable[16] =
 
 ADTSMainSource * ADTSMainSource::createNew(UsageEnvironment& env, int sub, GssLiveConn* liveSource) 
 {
-    return new ADTSMainSource(env, sub, 1, 8, 1, liveSource);
+    return new ADTSMainSource(env, sub, 1, 8, 2, liveSource);
 	//return new ADTSMainSource(env, fid, profile, sampling_frequency_index, channel_configuration);
 }
 
