@@ -1,6 +1,6 @@
 #CROSS := arm-hisiv300-linux-
 CC := $(CROSS)c++
-CFLAG := -DALLOW_SERVER_PORT_REUSE -Wno-write-strings -lpthread -lm -lliveMedia -lgroupsock -lBasicUsageEnvironment -lUsageEnvironment -lgssliveconn -lp2p -lssl -lcrypto -lrt -ldl -L./lib -L/root/test/openssl-1.0.2o/openssllib/lib\
+CFLAG := -DALLOW_SERVER_PORT_REUSE -Wno-write-strings -lliveMedia -lgroupsock -lBasicUsageEnvironment -lUsageEnvironment -lgssliveconn -lssl -lcrypto -lp2p -lrt -ldl -lpthread -lm -L./lib -L/root/test/openssl-1.0.2o/openssllib/lib\
 		-I./live555/BasicUsageEnvironment/include \
 		-I./live555/groupsock/include \
 		-I./live555/liveMedia/include \

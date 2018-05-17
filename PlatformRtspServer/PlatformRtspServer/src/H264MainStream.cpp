@@ -126,12 +126,19 @@ void H264LiveVideoSource::incomingDataHandler1()
 				fFrameSize = datalen - 4;
 				memcpy(fTo, data + 4, fFrameSize);
 			}
-			
-			gettimeofday(&fPresentationTime, NULL);
-			fDurationInMicroseconds = 1000000/50;
 
+			if(fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0)
+			{
+				gettimeofday(&fPresentationTime, NULL);
+			}
+			else if(nalu_type == 1 || nalu_type == 5)
+			{
+				gettimeofday(&fPresentationTime, NULL);
+			}
+			
 			if(nalu_type == 1 || nalu_type == 5)
 			{
+				fDurationInMicroseconds = 1000000/50;
 				//LOGI_print("framer video %p pData length:%d fFrameSize:%d", m_LiveSource, datalen, fFrameSize);
 				m_LiveSource->FreeVideoFrame();
 			}
