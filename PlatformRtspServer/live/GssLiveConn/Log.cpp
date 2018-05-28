@@ -115,7 +115,7 @@ int OpenFile()
 		return 0;
 	}
 #else
-	m_fp = open(buf, O_RDWR|O_CREAT);
+	m_fp = open(buf, O_RDWR|O_CREAT, 777);
 	if(m_fp != -1){
 		return 0;
 	}	

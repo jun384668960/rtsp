@@ -9,7 +9,7 @@ all:	$(ALL)
 .$(CPP).$(OBJ):
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
-GROUPSOCK_LIB_OBJS = GroupsockHelper.$(OBJ) GroupEId.$(OBJ) inet.$(OBJ) Groupsock.$(OBJ) NetInterface.$(OBJ) NetAddress.$(OBJ) IOHandlers.$(OBJ)
+GROUPSOCK_LIB_OBJS = GroupsockHelper.$(OBJ) GroupEId.$(OBJ) inet.$(OBJ) Groupsock.$(OBJ) NetInterface.$(OBJ) NetAddress.$(OBJ) IOHandlers.$(OBJ) TlsSocketHelper.$(OBJ)
 
 GroupsockHelper.$(CPP):	include/GroupsockHelper.hh
 include/GroupsockHelper.hh:	include/NetAddress.hh
@@ -24,6 +24,7 @@ include/TunnelEncaps.hh:	include/NetAddress.hh
 NetInterface.$(CPP):	include/NetInterface.hh include/GroupsockHelper.hh
 NetAddress.$(CPP):	include/NetAddress.hh include/GroupsockHelper.hh
 IOHandlers.$(CPP):	include/IOHandlers.hh include/TunnelEncaps.hh
+TlsSocketHelper.$(CPP):	include/TlsSocketHelper.hh
 
 libgroupsock.$(LIB_SUFFIX): $(GROUPSOCK_LIB_OBJS) \
     $(PLATFORM_SPECIFIC_LIB_OBJS)

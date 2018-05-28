@@ -261,6 +261,24 @@ bool GssLiveConn::Send( unsigned char* pData, int datalen )
 	return true;
 }
 
+void GssLiveConn::VideoFrameSync()
+{
+	m_lockVideo.Lock();
+	m_currNextIndexVideoInsert = 0;
+	m_countsVideo = 0;
+	m_curVideoIndex = 0;
+	m_lockVideo.Unlock();
+}
+
+void GssLiveConn::AudioFrameSync()
+{
+	m_lockAudio.Lock();
+	m_currNextIndexAudioInsert = 0;
+	m_countsAudio = 0;
+	m_curAudioIndex = 0;
+	m_lockAudio.Unlock();
+}
+
 void GssLiveConn::OnRecv( void *transport, void *user_data, char* data, int len, char type, unsigned int time_stamp )
 {
 //	printf("GssLiveConn::OnRecv len = %d\n",len);
