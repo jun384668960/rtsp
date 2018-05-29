@@ -240,7 +240,6 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
  				else if (liveConn->IsAudioAacType())
  					sms->addSubsession(ADTSMainServerMediaSubsession::createNew(env,0,liveConn,False));
 				//sms->addSubsession(H264LiveVideoServerMediaSubsession::createNew(env, uid,liveConn, False));
-				liveConn->incrementReferenceCount();
 			}
 			else
 			{

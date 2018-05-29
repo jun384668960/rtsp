@@ -31,13 +31,19 @@ H264LiveVideoSource::H264LiveVideoSource(UsageEnvironment& env,
 	m_front_nalu_type = 0;
 	m_front_nalu_len = 0;
 	m_ref = -1;
-
+	m_LiveSource->incrementReferenceCount();
+	
+	LOGI_print("H264LiveVideoSource m_LiveSource:%p referenceCount:%d ", m_LiveSource, m_LiveSource->referenceCount());
 }
 H264LiveVideoSource::~H264LiveVideoSource() 
 {
-	//LOGI_print("~H264LiveVideoSource m_LiveSource:%p", m_LiveSource);
-//	if(m_LiveSource != NULL)
-//		delete m_LiveSource;
+	m_LiveSource->decrementReferenceCount();
+	
+	LOGI_print("~H264LiveVideoSource m_LiveSource:%p referenceCount:%d ", m_LiveSource, m_LiveSource->referenceCount());
+	if(m_LiveSource->referenceCount() <= 0)
+	{
+		delete m_LiveSource;
+	}
 }
 
 void H264LiveVideoSource::setFramer(H264VideoStreamFramer* framer)

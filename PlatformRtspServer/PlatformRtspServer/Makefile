@@ -1,12 +1,15 @@
 #CROSS := arm-hisiv300-linux-
 CC := $(CROSS)c++
-CFLAG := -DALLOW_SERVER_PORT_REUSE -Wno-write-strings -lliveMedia -lgroupsock -lBasicUsageEnvironment -lUsageEnvironment -lgssliveconn -lssl -lcrypto -lp2p -lrt -ldl -lpthread -lm -L./lib -L/root/test/openssl-1.0.2o/openssllib/lib\
+CFLAG := -DALLOW_SERVER_PORT_REUSE -Wno-write-strings \
+		-lliveMedia -lgroupsock -lBasicUsageEnvironment -lUsageEnvironment \
+		-lssl -lcrypto -lgssliveconn -lp2p -lrt -ldl -lpthread \
+		-lm -L./lib \
 		-I./live555/BasicUsageEnvironment/include \
 		-I./live555/groupsock/include \
 		-I./live555/liveMedia/include \
 		-I./live555/UsageEnvironment/include \
-                -I./live555/GssLiveConn/include \
-		-I./include
+        -I./live555/GssLiveConn/include \
+		-I./include -I../live/extend/include -I../live/extend/include/openssl/
 		
 BINS := rtspServer
 

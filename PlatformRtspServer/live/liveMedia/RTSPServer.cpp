@@ -292,8 +292,14 @@ RTSPServer::RTSPClientConnection::~RTSPClientConnection() {
 
   if(fGssLiveConn)
   {
-	  delete fGssLiveConn;
-	  fGssLiveConn = NULL;
+//	  delete fGssLiveConn;
+//	  fGssLiveConn = NULL;
+		fGssLiveConn->decrementReferenceCount();
+		printf("~RTSPClientConnection fGssLiveConn:%p referenceCount:%d\n", fGssLiveConn, fGssLiveConn->referenceCount());
+		if(fGssLiveConn->referenceCount() <= 0)
+		{
+			delete fGssLiveConn;
+		}
   }
 }
 
@@ -359,7 +365,11 @@ void RTSPServer::RTSPClientConnection
 		char uid[64] = {0};
 		sscanf(fStreamName,"uid=%s",uid);
 		if(fGssLiveConn == NULL)
+		{
 			fGssLiveConn = new GssLiveConn(GssLiveConn::m_sGlobalInfos.domainDispath, GssLiveConn::m_sGlobalInfos.port, uid,true);
+			fGssLiveConn->incrementReferenceCount();
+			printf("~RTSPClientConnection fGssLiveConn:%p referenceCount:%d\n", fGssLiveConn, fGssLiveConn->referenceCount());
+		}
 		if(fGssLiveConn && !fGssLiveConn->Start() && !fGssLiveConn->IsConnected() )
 		{
 			//printf("XXXXXXXXXX start fGssLiveConn failed , liveConn(%p) of %s\n",fGssLiveConn,fStreamName);

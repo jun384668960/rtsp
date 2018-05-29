@@ -57,13 +57,21 @@ ADTSMainSource::ADTSMainSource(UsageEnvironment& env, int sub, u_int8_t profile,
 	audioSpecificConfig[1] = (samplingFrequencyIndex<<7) | (channelConfiguration<<3);
 	sprintf(fConfigStr, "%02X%02x", audioSpecificConfig[0], audioSpecificConfig[1]);
 	m_LiveSource = liveSource;
-		
 	m_ref = -1;
+	
+	m_LiveSource->incrementReferenceCount();
+	LOGI_print("ADTSMainSource m_LiveSource:%p referenceCount:%d ", m_LiveSource, m_LiveSource->referenceCount());
 }
 
 ADTSMainSource::~ADTSMainSource() 
 {
-
+	m_LiveSource->decrementReferenceCount();
+	
+	LOGI_print("~ADTSMainSource m_LiveSource:%p referenceCount:%d", m_LiveSource, m_LiveSource->referenceCount());
+	if(m_LiveSource->referenceCount() <= 0)
+	{
+		delete m_LiveSource;
+	}
 }
 
 

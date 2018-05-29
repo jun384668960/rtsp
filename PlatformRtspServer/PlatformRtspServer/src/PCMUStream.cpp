@@ -42,11 +42,19 @@ PCMUStream::PCMUStream(UsageEnvironment& env, char* uid, u_int8_t profile,u_int8
 	//LOGI_print("new GssLiveConn done %p",m_LiveSource);
 
 	m_ref = -1;
+	m_LiveSource->incrementReferenceCount();
+	LOGI_print("PCMUStream m_LiveSource:%p referenceCount:%d ", m_LiveSource, m_LiveSource->referenceCount());
 }
 
 PCMUStream::~PCMUStream() 
 {
-	//LOGI_print("~PCMUStream m_LiveSource:%p", m_LiveSource);
+	m_LiveSource->decrementReferenceCount();
+	
+	LOGI_print("~PCMUStream m_LiveSource:%p referenceCount:%d ", m_LiveSource, m_LiveSource->referenceCount());
+	if(m_LiveSource->referenceCount() <= 0)
+	{
+		delete m_LiveSource;
+	}
 }
 
 void PCMUStream::doGetNextFrame() {

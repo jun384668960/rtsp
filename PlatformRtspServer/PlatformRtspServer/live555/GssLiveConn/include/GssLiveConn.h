@@ -184,7 +184,10 @@ public:
 	bool GetAudioFrame(unsigned char** pData, int &datalen);
 	void FreeAudioFrame();
 	bool Send(unsigned char* pData, int datalen); //备用
-
+	
+	void VideoFrameSync();
+	void AudioFrameSync();
+		
 protected:
 	bool RequestLiveConnServer();
 
@@ -237,6 +240,7 @@ private:
 	static bool m_isInitedGlobal;
 	
 	MySem m_semt;
+	bool m_isFirstFrame;
 public:
 	static SGlobalInfo m_sGlobalInfos;
 };

@@ -29,7 +29,7 @@ class DynamicRTSPServer: public RTSPServerSupportingHTTPStreaming {
 public:
   static DynamicRTSPServer* createNew(UsageEnvironment& env, Port ourPort,
 				      UserAuthenticationDatabase* authDatabase,
-				      unsigned reclamationTestSeconds = 65,
+				      unsigned reclamationTestSeconds = 25,
 					  bool supportTls12 = false);
 
 protected:
