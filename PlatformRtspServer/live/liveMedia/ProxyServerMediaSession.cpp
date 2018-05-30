@@ -855,7 +855,7 @@ void PresentationTimeSessionNormalizer
       fMasterSSNormalizer = ssNormalizer;
 
       struct timeval timeNow;
-      gettimeofday(&timeNow, NULL);
+      gettickcount(&timeNow, NULL);
 
       // Compute: fPTAdjustment = timeNow - fromPT
       fPTAdjustment.tv_sec = timeNow.tv_sec - fromPT.tv_sec;

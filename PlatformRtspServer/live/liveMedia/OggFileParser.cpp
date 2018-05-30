@@ -20,7 +20,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 #include "OggFileParser.hh"
 #include "OggDemuxedTrack.hh"
-#include <GroupsockHelper.hh> // for "gettimeofday()
+#include <GroupsockHelper.hh> // for "gettickcount()
 
 PacketSizeTable::PacketSizeTable(unsigned number_page_segments)
   : numCompletedPackets(0), totSizes(0), nextPacketNumToDeliver(0),
@@ -925,7 +925,7 @@ Boolean OggFileParser::deliverPacketWithinPage() {
 
   if (demuxedTrack->nextPresentationTime().tv_sec == 0 && demuxedTrack->nextPresentationTime().tv_usec == 0) {
     // This is the first delivery.  Initialize "demuxedTrack->nextPresentationTime()":
-    gettimeofday(&demuxedTrack->nextPresentationTime(), NULL);
+    gettickcount(&demuxedTrack->nextPresentationTime(), NULL);
   }
   demuxedTrack->presentationTime() = demuxedTrack->nextPresentationTime();
   demuxedTrack->durationInMicroseconds() = durationInMicroseconds;

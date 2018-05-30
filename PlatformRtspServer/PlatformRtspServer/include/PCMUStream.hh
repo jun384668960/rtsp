@@ -44,6 +44,14 @@ protected:
 	PCMUServerMediaSubsession(UsageEnvironment& env, char* uid, GssLiveConn* liveSource, Boolean reuseFirstSource);
 	// called only by createNew();
 	virtual ~ PCMUServerMediaSubsession();
+	virtual void startStream(unsigned clientSessionId,
+							void* streamToken,
+							TaskFunc* rtcpRRHandler,
+							void* rtcpRRHandlerClientData,
+							unsigned short& rtpSeqNum,
+							unsigned& rtpTimestamp,
+							ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
+							void* serverRequestAlternativeByteHandlerClientData);
 
 protected: // redefined virtual functions
 	virtual FramedSource* createNewStreamSource(unsigned clientSessionId,unsigned& estBitrate);

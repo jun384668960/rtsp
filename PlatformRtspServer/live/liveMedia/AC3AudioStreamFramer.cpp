@@ -87,7 +87,7 @@ AC3AudioStreamFramer::AC3AudioStreamFramer(UsageEnvironment& env,
 					   unsigned char streamCode)
   : FramedFilter(env, inputSource), fOurStreamCode(streamCode) {
   // Use the current wallclock time as the initial 'presentation time':
-  gettimeofday(&fNextFramePresentationTime, NULL);
+  gettickcount(&fNextFramePresentationTime, NULL);
 
   fParser = new AC3AudioStreamParser(this, inputSource);
 }

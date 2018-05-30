@@ -79,7 +79,7 @@ ServerMediaSession::ServerMediaSession(UsageEnvironment& env,
 
   fMiscSDPLines = strDup(miscSDPLines == NULL ? "" : miscSDPLines);
 
-  gettimeofday(&fCreationTime, NULL);
+  gettickcount(&fCreationTime, NULL);
 }
 
 ServerMediaSession::~ServerMediaSession() {

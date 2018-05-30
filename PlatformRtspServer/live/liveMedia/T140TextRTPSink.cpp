@@ -19,7 +19,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // Implementation
 
 #include "T140TextRTPSink.hh"
-#include <GroupsockHelper.hh> // for "gettimeofday()"
+#include <GroupsockHelper.hh> // for "gettickcount()"
 
 ////////// T140TextRTPSink implementation //////////
 
@@ -168,7 +168,7 @@ void T140IdleFilter::deliverFromBuffer() {
 
 void T140IdleFilter::deliverEmptyFrame() {
   fFrameSize = fNumTruncatedBytes = 0;
-  gettimeofday(&fPresentationTime, NULL);
+  gettickcount(&fPresentationTime, NULL);
   FramedSource::afterGetting(this); // complete delivery
 }
 

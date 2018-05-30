@@ -299,7 +299,7 @@ QuickTimeFileSink::QuickTimeFileSink(UsageEnvironment& env,
   // Use the current time as the file's creation and modification
   // time.  Use Apple's time format: seconds (UTC) since January 1, 1904
 
-  gettimeofday(&fStartTime, NULL);
+  gettickcount(&fStartTime, NULL);
   fAppleCreationTime = fStartTime.tv_sec - 0x83da4f80;
 
   // Begin by writing a "mdat" atom at the start of the file.
@@ -456,7 +456,7 @@ void QuickTimeFileSink::onRTCPBye(void* clientData) {
   SubsessionIOState* ioState = (SubsessionIOState*)clientData;
 
   struct timeval timeNow;
-  gettimeofday(&timeNow, NULL);
+  gettickcount(&timeNow, NULL);
   unsigned secsDiff
     = timeNow.tv_sec - ioState->fOurSink.fStartTime.tv_sec;
 

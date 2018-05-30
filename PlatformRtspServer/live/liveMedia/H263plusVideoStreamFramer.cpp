@@ -50,7 +50,7 @@ H263plusVideoStreamFramer::H263plusVideoStreamFramer(
                                 fPictureEndMarker(False)
 {
    // Use the current wallclock time as the base 'presentation time':
-   gettimeofday(&fPresentationTimeBase, NULL);
+   gettickcount(&fPresentationTimeBase, NULL);
    fParser = createParser ? new H263plusVideoStreamParser(this, inputSource) : NULL;
 }
 

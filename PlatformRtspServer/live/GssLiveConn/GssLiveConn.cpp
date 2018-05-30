@@ -214,7 +214,7 @@ bool GssLiveConn::IsConnected()
 	return m_isConnected;
 }
 
-bool GssLiveConn::GetVideoFrame( unsigned char** pData, int &datalen )
+bool GssLiveConn::GetVideoFrame( unsigned char** pData, int &datalen, GosFrameHead& frameHeader)
 {
 	bool bSuc = false;
 //	printf("********%p GetVideoFrame count = %d\n",this,m_countsVideo);
@@ -222,6 +222,7 @@ bool GssLiveConn::GetVideoFrame( unsigned char** pData, int &datalen )
 	{
 		*pData = m_bufferVideo[m_curVideoIndex]->m_buffer;
 		datalen = m_bufferVideo[m_curVideoIndex]->m_bufferlen;
+		frameHeader = m_bufferVideo[m_curVideoIndex]->m_frameHeader;
 		bSuc = true;
 	}
 	return bSuc;
@@ -235,7 +236,7 @@ void GssLiveConn::FreeVideoFrame()
 	m_lockVideo.Unlock();
 }
 
-bool GssLiveConn::GetAudioFrame( unsigned char** pData, int &datalen )
+bool GssLiveConn::GetAudioFrame( unsigned char** pData, int &datalen, GosFrameHead& frameHeader)
 {
 	bool bSuc = false;
 //	printf("********%p GetAudioFrame count = %d\n",this,m_countsAudio);
@@ -243,6 +244,7 @@ bool GssLiveConn::GetAudioFrame( unsigned char** pData, int &datalen )
 	{
 		*pData = m_bufferAudio[m_curAudioIndex]->m_buffer;
 		datalen = m_bufferAudio[m_curAudioIndex]->m_bufferlen;
+		frameHeader = m_bufferAudio[m_curAudioIndex]->m_frameHeader;
 		bSuc = true;
 	}
 	return bSuc;
@@ -270,6 +272,15 @@ void GssLiveConn::VideoFrameSync()
 	m_lockVideo.Unlock();
 }
 
+int GssLiveConn::VideoFrameCount()
+{
+	int count = 0;
+	m_lockVideo.Lock();
+	count = m_countsVideo;
+	m_lockVideo.Unlock();
+	return count;
+}
+
 void GssLiveConn::AudioFrameSync()
 {
 	m_lockAudio.Lock();
@@ -277,6 +288,15 @@ void GssLiveConn::AudioFrameSync()
 	m_countsAudio = 0;
 	m_curAudioIndex = 0;
 	m_lockAudio.Unlock();
+}
+
+int GssLiveConn::AudioFrameCount()
+{
+	int count = 0;
+	m_lockVideo.Lock();
+	count = m_countsAudio;
+	m_lockVideo.Unlock();
+	return count;
 }
 
 void GssLiveConn::OnRecv( void *transport, void *user_data, char* data, int len, char type, unsigned int time_stamp )
@@ -445,8 +465,17 @@ bool GssLiveConn::AddVideoFrame( unsigned char* pData, int datalen )
 			{
 				if(m_audioType == gos_codec_unknown)
 				{
-					m_audioType = (gos_codec_type_t)m_bufferAudio[m_currNextIndexAudioInsert]->m_frameHeader.nCodeType;
+//					m_audioType = (gos_codec_type_t)m_bufferAudio[m_currNextIndexAudioInsert]->m_frameHeader.nCodeType;
 //					printf("m_audioType = %d\n",m_audioType);
+					gos_codec_type_t codec_type = (gos_codec_type_t)m_bufferVideo[m_currNextIndexVideoInsert]->m_frameHeader.nCodeType;
+					if(codec_type == gos_video_H264_G711)
+					{
+						m_audioType = gos_audio_G711A;
+					}
+					else if(codec_type == gos_video_H264_AAC)
+					{
+						m_audioType = gos_audio_AAC;
+					}
 				}
 				IncVideoNextInsertIndex();
 				m_countsVideo++;

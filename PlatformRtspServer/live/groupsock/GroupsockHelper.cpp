@@ -709,7 +709,7 @@ netAddressBits ourIPAddress(UsageEnvironment& env) {
     // Use our newly-discovered IP address, and the current time,
     // to initialize the random number generator's seed:
     struct timeval timeNow;
-    gettimeofday(&timeNow, NULL);
+    gettickcount(&timeNow, NULL);
     unsigned seed = ourAddress^timeNow.tv_sec^timeNow.tv_usec;
     our_srandom(seed);
   }
@@ -730,7 +730,7 @@ netAddressBits chooseRandomIPv4SSMAddress(UsageEnvironment& env) {
 
 char const* timestampString() {
   struct timeval tvNow;
-  gettimeofday(&tvNow, NULL);
+  gettickcount(&tvNow, NULL);
 
 #if !defined(_WIN32_WCE)
   static char timeString[9]; // holds hh:mm:ss plus trailing '\0'
@@ -759,16 +759,16 @@ char const* timestampString() {
 }
 
 #if (defined(__WIN32__) || defined(_WIN32)) && !defined(__MINGW32__)
-// For Windoze, we need to implement our own gettimeofday()
+// For Windoze, we need to implement our own gettickcount()
 
-// used to make sure that static variables in gettimeofday() aren't initialized simultaneously by multiple threads
-static LONG initializeLock_gettimeofday = 0;  
+// used to make sure that static variables in gettickcount() aren't initialized simultaneously by multiple threads
+static LONG initializeLock_gettickcount = 0;  
 
 #if !defined(_WIN32_WCE)
 #include <sys/timeb.h>
 #endif
 
-int gettimeofday(struct timeval* tp, int* /*tz*/) {
+int gettickcount(struct timeval* tp, int* /*tz*/) {
   static LARGE_INTEGER tickFrequency, epochOffset;
 
   static Boolean isInitialized = False;
@@ -782,7 +782,7 @@ int gettimeofday(struct timeval* tp, int* /*tz*/) {
 #endif
  
   if (!isInitialized) {
-    if(1 == InterlockedIncrement(&initializeLock_gettimeofday)) {
+    if(1 == InterlockedIncrement(&initializeLock_gettickcount)) {
 #if !defined(_WIN32_WCE)
       // For our first call, use "ftime()", so that we get a time with a proper epoch.
       // For subsequent calls, use "QueryPerformanceCount()", because it's more fine-grain.
@@ -808,7 +808,7 @@ int gettimeofday(struct timeval* tp, int* /*tz*/) {
 
       /*
         GetSystemTimeAsFileTime has just a seconds resolution,
-        thats why wince-version of gettimeofday is not 100% accurate, usec accuracy would be calculated like this:
+        thats why wince-version of gettickcount is not 100% accurate, usec accuracy would be calculated like this:
         // convert 100 nanoseconds to usec
         tp->tv_usec= (long)((time.QuadPart - epoch)%10000000L) / 10L;
       */
@@ -825,7 +825,7 @@ int gettimeofday(struct timeval* tp, int* /*tz*/) {
       isInitialized = True; 
       return 0;
     } else {
-        InterlockedDecrement(&initializeLock_gettimeofday);
+        InterlockedDecrement(&initializeLock_gettickcount);
         // wait until first caller has initialized static values
         while(!isInitialized){
           Sleep(1);
@@ -840,5 +840,13 @@ int gettimeofday(struct timeval* tp, int* /*tz*/) {
   tp->tv_usec = (long)(((tickNow.QuadPart % tickFrequency.QuadPart) * 1000000L) / tickFrequency.QuadPart);
 
   return 0;
+}
+#else
+int gettickcount(struct timeval* tp, int* /*tz*/) {
+	struct timespec now;    
+	clock_gettime(CLOCK_MONOTONIC, &now);	
+	tp->tv_sec =  (long)(now.tv_sec);	
+	tp->tv_usec = (long)(now.tv_nsec / 1000);
+	return 0;
 }
 #endif

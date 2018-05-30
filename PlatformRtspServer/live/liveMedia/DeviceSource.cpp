@@ -22,7 +22,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // Implementation
 
 #include "DeviceSource.hh"
-#include <GroupsockHelper.hh> // for "gettimeofday()"
+#include <GroupsockHelper.hh> // for "gettickcount()"
 
 DeviceSource*
 DeviceSource::createNew(UsageEnvironment& env,
@@ -114,7 +114,7 @@ void DeviceSource::deliverFrame() {
   //         that have been omitted.
   //     fPresentationTime: Should be set to the frame's presentation time
   //         (seconds, microseconds).  This time must be aligned with 'wall-clock time' - i.e., the time that you would get
-  //         by calling "gettimeofday()".
+  //         by calling "gettickcount()".
   //     fDurationInMicroseconds: Should be set to the frame's duration, if known.
   //         If, however, the device is a 'live source' (e.g., encoded from a camera or microphone), then we probably don't need
   //         to set this variable, because - in this case - data will never arrive 'early'.
@@ -132,7 +132,7 @@ void DeviceSource::deliverFrame() {
   } else {
     fFrameSize = newFrameSize;
   }
-  gettimeofday(&fPresentationTime, NULL); // If you have a more accurate time - e.g., from an encoder - then use that instead.
+  gettickcount(&fPresentationTime, NULL); // If you have a more accurate time - e.g., from an encoder - then use that instead.
   // If the device is *not* a 'live source' (e.g., it comes instead from a file or buffer), then set "fDurationInMicroseconds" here.
   memmove(fTo, newFrameDataStart, fFrameSize);
 

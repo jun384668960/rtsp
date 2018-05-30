@@ -739,7 +739,7 @@ Boolean RTSPClient::setRequestFields(RequestRecord* request,
 	struct timeval timestamp;
 	unsigned counter;
       } seedData;
-      gettimeofday(&seedData.timestamp, NULL);
+      gettickcount(&seedData.timestamp, NULL);
       seedData.counter = ++fSessionCookieCounter;
       our_MD5Data((unsigned char*)(&seedData), sizeof seedData, fSessionCookie);
       // DSS seems to require that the 'session cookie' string be 22 bytes long:

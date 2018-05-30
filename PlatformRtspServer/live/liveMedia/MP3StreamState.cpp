@@ -61,7 +61,7 @@ void MP3StreamState::assignStream(FILE* fid, unsigned fileSize) {
   fIsVBR = fHasXingTOC = False; // ditto
 
   // Set the first frame's 'presentation time' to the current wall time:
-  gettimeofday(&fNextFramePresentationTime, NULL);
+  gettickcount(&fNextFramePresentationTime, NULL);
 }
 
 struct timeval MP3StreamState::currentFramePlayTime() const {

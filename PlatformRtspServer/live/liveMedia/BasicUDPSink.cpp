@@ -39,7 +39,7 @@ BasicUDPSink::~BasicUDPSink() {
 
 Boolean BasicUDPSink::continuePlaying() {
   // Record the fact that we're starting to play now:
-  gettimeofday(&fNextSendTime, NULL);
+  gettickcount(&fNextSendTime, NULL);
 
   // Arrange to get and send the first payload.
   // (This will also schedule any future sends.)
@@ -82,7 +82,7 @@ void BasicUDPSink::afterGettingFrame1(unsigned frameSize, unsigned numTruncatedB
   fNextSendTime.tv_usec %= 1000000;
 
   struct timeval timeNow;
-  gettimeofday(&timeNow, NULL);
+  gettickcount(&timeNow, NULL);
   int secsDiff = fNextSendTime.tv_sec - timeNow.tv_sec;
   int64_t uSecondsToGo = secsDiff*1000000 + (fNextSendTime.tv_usec - timeNow.tv_usec);
   if (uSecondsToGo < 0 || secsDiff < 0) { // sanity check: Make sure that the time-to-delay is non-negative:

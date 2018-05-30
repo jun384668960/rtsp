@@ -96,7 +96,7 @@ void ByteStreamMemoryBufferSource::doGetNextFrame() {
   if (fPlayTimePerFrame > 0 && fPreferredFrameSize > 0) {
     if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
       // This is the first frame, so use the current time:
-      gettimeofday(&fPresentationTime, NULL);
+      gettickcount(&fPresentationTime, NULL);
     } else {
       // Increment by the play time of the previous data:
       unsigned uSeconds	= fPresentationTime.tv_usec + fLastPlayTime;
@@ -110,7 +110,7 @@ void ByteStreamMemoryBufferSource::doGetNextFrame() {
   } else {
     // We don't know a specific play time duration for this data,
     // so just record the current time as being the 'presentation time':
-    gettimeofday(&fPresentationTime, NULL);
+    gettickcount(&fPresentationTime, NULL);
   }
 
   // Inform the downstream object that it has data:

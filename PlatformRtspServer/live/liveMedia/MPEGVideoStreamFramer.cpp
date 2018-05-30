@@ -64,7 +64,7 @@ void MPEGVideoStreamFramer::reset() {
   fHaveSeenFirstTimeCode = False;
 
   // Use the current wallclock time as the base 'presentation time':
-  gettimeofday(&fPresentationTimeBase, NULL);
+  gettickcount(&fPresentationTimeBase, NULL);
 }
 
 #ifdef DEBUG

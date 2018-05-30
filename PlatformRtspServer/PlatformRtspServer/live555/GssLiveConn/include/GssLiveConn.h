@@ -179,14 +179,16 @@ public:
 	bool IsKnownAudioType();
 	bool IsAudioAacType();
 	bool IsAudioG711AType();
-	bool GetVideoFrame(unsigned char** pData, int &datalen); //成功后，当使用完pData之后必须调用FreeVideoFrame
+	bool GetVideoFrame(unsigned char** pData, int &datalen, GosFrameHead& frameHeader); //成功后，当使用完pData之后必须调用FreeVideoFrame
 	void FreeVideoFrame();
-	bool GetAudioFrame(unsigned char** pData, int &datalen);
+	bool GetAudioFrame(unsigned char** pData, int &datalen, GosFrameHead& frameHeader);
 	void FreeAudioFrame();
 	bool Send(unsigned char* pData, int datalen); //备用
 	
 	void VideoFrameSync();
+	int  VideoFrameCount();
 	void AudioFrameSync();
+	int  AudioFrameCount();
 		
 protected:
 	bool RequestLiveConnServer();

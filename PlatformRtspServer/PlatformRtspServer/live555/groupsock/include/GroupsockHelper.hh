@@ -131,11 +131,13 @@ void reclaimGroupsockPriv(UsageEnvironment& env);
 
 
 #if (defined(__WIN32__) || defined(_WIN32)) && !defined(__MINGW32__)
-// For Windoze, we need to implement our own gettimeofday()
-extern int gettimeofday(struct timeval*, int*);
+// For Windoze, we need to implement our own gettickcount()
+extern int gettickcount(struct timeval*, int*);
 #else
 #include <sys/time.h>
+extern int gettickcount(struct timeval*, int*);
 #endif
+
 
 // The following are implemented in inet.c:
 extern "C" netAddressBits our_inet_addr(char const*);

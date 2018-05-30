@@ -96,8 +96,9 @@ void ADTSMainSource::incomingDataHandler1()
 		fFrameSize = 0;
 		unsigned char* pData = NULL;
 		int datalen;
+		GosFrameHead frameHeader;
 
-		if(m_LiveSource->GetAudioFrame(&pData, datalen))
+		if(m_LiveSource->GetAudioFrame(&pData, datalen, frameHeader))
 		{
 			//			LOGI_print("datalen:%d", datalen);
 
@@ -113,10 +114,24 @@ void ADTSMainSource::incomingDataHandler1()
 			}
 			memcpy(fTo, pData+7, fFrameSize);
 
-			gettimeofday(&fPresentationTime, NULL);
-			fDurationInMicroseconds = fuSecsPerFrame;
+			if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) 
+			{
+				// This is the first frame, so use the current time:
+				gettickcount(&fPresentationTime, NULL);
+				m_ref = frameHeader.nTimestamp;
+			} 
+			else 
+			{
+				// Increment by the play time of the previous frame:
+				unsigned uSeconds = fPresentationTime.tv_usec + (frameHeader.nTimestamp - m_ref)*1000;
+				fPresentationTime.tv_sec += uSeconds/1000000;
+				fPresentationTime.tv_usec = uSeconds%1000000;
+				m_ref = frameHeader.nTimestamp;
+			}
+			fDurationInMicroseconds = fuSecsPerFrame/2;
 
-			//LOGI_print("framer audio %p pData length:%d fFrameSize:%d", m_LiveSource, datalen, fFrameSize);
+			LOGI_print("framer audio %p pData length:%d fFrameSize:%d AudioFrameCount:%d"
+				, m_LiveSource, datalen, fFrameSize, m_LiveSource->AudioFrameCount());
 			m_LiveSource->FreeAudioFrame();
 
 			nextTask() = envir().taskScheduler().scheduleDelayedTask(0,(TaskFunc*)FramedSource::afterGetting, this);
@@ -144,8 +159,8 @@ void ADTSMainServerMediaSubsession::startStream(unsigned clientSessionId,
 						unsigned& rtpTimestamp,
 						ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
 						void* serverRequestAlternativeByteHandlerClientData) {
-						
-  OnDemandServerMediaSubsession::startStream(clientSessionId,streamToken,rtcpRRHandler,rtcpRRHandlerClientData,rtpSeqNum,rtpTimestamp,serverRequestAlternativeByteHandler,
+	m_LiveSource->AudioFrameSync();
+	OnDemandServerMediaSubsession::startStream(clientSessionId,streamToken,rtcpRRHandler,rtcpRRHandlerClientData,rtpSeqNum,rtpTimestamp,serverRequestAlternativeByteHandler,
 	           serverRequestAlternativeByteHandlerClientData);
 }
 

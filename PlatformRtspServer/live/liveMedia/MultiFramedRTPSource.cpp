@@ -325,7 +325,7 @@ void MultiFramedRTPSource::networkReadHandler1() {
 
     // Fill in the rest of the packet descriptor, and store it:
     struct timeval timeNow;
-    gettimeofday(&timeNow, NULL);
+    gettickcount(&timeNow, NULL);
     bPacket->assignMiscParams(rtpSeqNo, rtpTimestamp, presentationTime,
 			      hasBeenSyncedUsingRTCP, rtpMarkerBit,
 			      timeNow);
@@ -613,7 +613,7 @@ BufferedPacket* ReorderingPacketBuffer
     timeThresholdHasBeenExceeded = True; // optimization
   } else {
     struct timeval timeNow;
-    gettimeofday(&timeNow, NULL);
+    gettickcount(&timeNow, NULL);
     unsigned uSecondsSinceReceived
       = (timeNow.tv_sec - fHeadPacket->timeReceived().tv_sec)*1000000
       + (timeNow.tv_usec - fHeadPacket->timeReceived().tv_usec);

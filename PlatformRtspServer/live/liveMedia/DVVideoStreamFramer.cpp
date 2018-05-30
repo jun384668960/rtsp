@@ -31,7 +31,7 @@ DVVideoStreamFramer::DVVideoStreamFramer(UsageEnvironment& env, FramedSource* in
     fOurProfile(NULL), fInitialBlocksPresent(False), fSourceIsSeekable(sourceIsSeekable) {
   fTo = NULL; // hack used when reading "fSavedInitialBlocks"
   // Use the current wallclock time as the initial 'presentation time':
-  gettimeofday(&fNextFramePresentationTime, NULL);
+  gettickcount(&fNextFramePresentationTime, NULL);
 }
 
 DVVideoStreamFramer::~DVVideoStreamFramer() {

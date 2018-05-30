@@ -311,7 +311,7 @@ void AVIFileSink::onRTCPBye(void* clientData) {
   AVISubsessionIOState* ioState = (AVISubsessionIOState*)clientData;
 
   struct timeval timeNow;
-  gettimeofday(&timeNow, NULL);
+  gettickcount(&timeNow, NULL);
   unsigned secsDiff
     = timeNow.tv_sec - ioState->fOurSink.fStartTime.tv_sec;
 

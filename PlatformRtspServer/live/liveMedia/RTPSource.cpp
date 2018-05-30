@@ -278,7 +278,7 @@ void RTPReceptionStats
 
   // Record the inter-packet delay
   struct timeval timeNow;
-  gettimeofday(&timeNow, NULL);
+  gettickcount(&timeNow, NULL);
   if (fLastPacketReceptionTime.tv_sec != 0
       || fLastPacketReceptionTime.tv_usec != 0) {
     unsigned gap
@@ -372,7 +372,7 @@ void RTPReceptionStats::noteIncomingSR(u_int32_t ntpTimestampMSW,
   fLastReceivedSR_NTPmsw = ntpTimestampMSW;
   fLastReceivedSR_NTPlsw = ntpTimestampLSW;
 
-  gettimeofday(&fLastReceivedSR_time, NULL);
+  gettickcount(&fLastReceivedSR_time, NULL);
 
   // Use this SR to update time synchronization information:
   fSyncTimestamp = rtpTimestamp;

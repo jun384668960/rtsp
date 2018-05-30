@@ -155,7 +155,7 @@ void ADTSAudioFileSource::doGetNextFrame() {
   // Set the 'presentation time':
   if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
     // This is the first frame, so use the current time:
-    gettimeofday(&fPresentationTime, NULL);
+    gettickcount(&fPresentationTime, NULL);
   } else {
     // Increment by the play time of the previous frame:
     unsigned uSeconds = fPresentationTime.tv_usec + fuSecsPerFrame;

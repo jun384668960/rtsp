@@ -158,7 +158,7 @@ void AMRAudioFileSource::doGetNextFrame() {
   // Set the 'presentation time':
   if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
     // This is the first frame, so use the current time:
-    gettimeofday(&fPresentationTime, NULL);
+    gettickcount(&fPresentationTime, NULL);
   } else {
     // Increment by the play time of the previous frame (20 ms)
     unsigned uSeconds	= fPresentationTime.tv_usec + 20000;

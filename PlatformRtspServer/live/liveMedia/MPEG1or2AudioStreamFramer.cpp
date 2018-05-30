@@ -80,7 +80,7 @@ void MPEG1or2AudioStreamFramer::flushInput() {
 void MPEG1or2AudioStreamFramer::reset() {
   // Use the current wallclock time as the initial 'presentation time':
   struct timeval timeNow;
-  gettimeofday(&timeNow, NULL);
+  gettickcount(&timeNow, NULL);
   resetPresentationTime(timeNow);
 }
 

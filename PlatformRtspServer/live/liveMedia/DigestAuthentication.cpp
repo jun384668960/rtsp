@@ -21,7 +21,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "DigestAuthentication.hh"
 #include "ourMD5.hh"
 #include <strDup.hh>
-#include <GroupsockHelper.hh> // for gettimeofday()
+#include <GroupsockHelper.hh> // for gettickcount()
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -83,7 +83,7 @@ void Authenticator::setRealmAndRandomNonce(char const* realm) {
     struct timeval timestamp;
     unsigned counter;
   } seedData;
-  gettimeofday(&seedData.timestamp, NULL);
+  gettickcount(&seedData.timestamp, NULL);
   static unsigned counter = 0;
   seedData.counter = ++counter;
 

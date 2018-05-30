@@ -203,7 +203,7 @@ float PassiveServerMediaSubsession::getCurrentNPT(void* streamToken) {
   struct timeval const& creationTime  = fRTPSink.creationTime(); // alias
 
   struct timeval timeNow;
-  gettimeofday(&timeNow, NULL);
+  gettickcount(&timeNow, NULL);
 
   return (float)(timeNow.tv_sec - creationTime.tv_sec + (timeNow.tv_usec - creationTime.tv_usec)/1000000.0);
 }

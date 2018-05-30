@@ -73,8 +73,9 @@ void H264LiveVideoSource::incomingDataHandler1()
 		unsigned char* pData = NULL;
 		int datalen;
 		int nalu_type = 0;
+		GosFrameHead frameHeader;
 		
-		if(m_LiveSource->GetVideoFrame(&pData, datalen))
+		if(m_LiveSource->GetVideoFrame(&pData, datalen, frameHeader))
 		{
 //			LOGI_print("datalen:%d", datalen);
 			
@@ -135,18 +136,28 @@ void H264LiveVideoSource::incomingDataHandler1()
 
 			if(fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0)
 			{
-				gettimeofday(&fPresentationTime, NULL);
+				gettickcount(&fPresentationTime, NULL);
+				m_ref = frameHeader.nTimestamp;
 			}
 			else if(nalu_type == 1 || nalu_type == 5)
 			{
-				gettimeofday(&fPresentationTime, NULL);
+				unsigned uSeconds = fPresentationTime.tv_usec + (frameHeader.nTimestamp - m_ref)*1000;
+				fPresentationTime.tv_sec += uSeconds/1000000;
+				fPresentationTime.tv_usec = uSeconds%1000000;
+				m_ref = frameHeader.nTimestamp;
+//				gettickcount(&fPresentationTime, NULL);
 			}
 			
 			if(nalu_type == 1 || nalu_type == 5)
 			{
 				fDurationInMicroseconds = 1000000/50;
-				//LOGI_print("framer video %p pData length:%d fFrameSize:%d", m_LiveSource, datalen, fFrameSize);
+				LOGI_print("framer video %p pData length:%d fFrameSize:%d VideoFrameCount:%d"
+					, m_LiveSource, datalen, fFrameSize, m_LiveSource->VideoFrameCount());
 				m_LiveSource->FreeVideoFrame();
+			}
+			else
+			{
+				fDurationInMicroseconds = 0;
 			}
 			if(m_front_nalu_type == 6 || m_front_nalu_type == 9)	//skip 06 09
 			{
@@ -226,7 +237,7 @@ void H264LiveVideoServerMediaSubsession::afterPlayingDummy1()
  
 	//demand idr
 //	GOS_SDK_VENC_RequestIFrame(0, 0, 1);
-	 
+	m_LiveSource->VideoFrameSync();
 	OnDemandServerMediaSubsession::startStream(clientSessionId,streamToken,rtcpRRHandler,rtcpRRHandlerClientData,rtpSeqNum,rtpTimestamp,serverRequestAlternativeByteHandler,
 	           serverRequestAlternativeByteHandlerClientData);
  }

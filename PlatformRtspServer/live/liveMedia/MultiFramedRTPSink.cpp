@@ -241,7 +241,7 @@ void MultiFramedRTPSink
 		     unsigned durationInMicroseconds) {
   if (fIsFirstPacket) {
     // Record the fact that we're starting to play now:
-    gettimeofday(&fNextSendTime, NULL);
+    gettickcount(&fNextSendTime, NULL);
   }
 
   fMostRecentPresentationTime = presentationTime;
@@ -404,7 +404,7 @@ void MultiFramedRTPSink::sendPacketIfNecessary() {
     // is due to start playing, then make sure that we wait this long before
     // sending the next packet.
     struct timeval timeNow;
-    gettimeofday(&timeNow, NULL);
+    gettickcount(&timeNow, NULL);
     int secsDiff = fNextSendTime.tv_sec - timeNow.tv_sec;
     int64_t uSecondsToGo = secsDiff*1000000 + (fNextSendTime.tv_usec - timeNow.tv_usec);
     if (uSecondsToGo < 0 || secsDiff < 0) { // sanity check: Make sure that the time-to-delay is non-negative:

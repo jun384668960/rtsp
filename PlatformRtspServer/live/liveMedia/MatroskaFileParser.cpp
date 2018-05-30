@@ -21,7 +21,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "MatroskaFileParser.hh"
 #include "MatroskaDemuxedTrack.hh"
 #include <ByteStreamFileSource.hh>
-#include <GroupsockHelper.hh> // for "gettimeofday()
+#include <GroupsockHelper.hh> // for "gettickcount()
 
 MatroskaFileParser::MatroskaFileParser(MatroskaFile& ourFile, FramedSource* inputSource,
 				       FramedSource::onCloseFunc* onEndFunc, void* onEndClientData,
@@ -1061,7 +1061,7 @@ Boolean MatroskaFileParser::deliverFrameWithinBlock() {
       // This is the first time we've computed a presentation time.  Compute an offset to make the presentation times aligned
       // with 'wall clock' time:
       struct timeval timeNow;
-      gettimeofday(&timeNow, NULL);
+      gettickcount(&timeNow, NULL);
       double ptNow = timeNow.tv_sec + timeNow.tv_usec/1000000.0;
       fPresentationTimeOffset = ptNow - pt;
     }

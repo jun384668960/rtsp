@@ -55,7 +55,7 @@ RTPSink::RTPSink(UsageEnvironment& env,
     fNumChannels(numChannels), fEstimatedBitrate(0) {
   fRTPPayloadFormatName
     = strDup(rtpPayloadFormatName == NULL ? "???" : rtpPayloadFormatName);
-  gettimeofday(&fCreationTime, NULL);
+  gettickcount(&fCreationTime, NULL);
   fTotalOctetCountStartTime = fCreationTime;
   resetPresentationTimes();
 
@@ -99,7 +99,7 @@ u_int32_t RTPSink::convertToRTPTimestamp(struct timeval tv) {
 
 u_int32_t RTPSink::presetNextTimestamp() {
   struct timeval timeNow;
-  gettimeofday(&timeNow, NULL);
+  gettickcount(&timeNow, NULL);
 
   u_int32_t tsNow = convertToRTPTimestamp(timeNow);
   if (!groupsockBeingUsed().hasMultipleDestinations()) {
@@ -113,7 +113,7 @@ u_int32_t RTPSink::presetNextTimestamp() {
 
 void RTPSink::getTotalBitrate(unsigned& outNumBytes, double& outElapsedTime) {
   struct timeval timeNow;
-  gettimeofday(&timeNow, NULL);
+  gettickcount(&timeNow, NULL);
 
   outNumBytes = fTotalOctetCount;
   outElapsedTime = (double)(timeNow.tv_sec-fTotalOctetCountStartTime.tv_sec)
@@ -250,7 +250,7 @@ RTPTransmissionStats::RTPTransmissionStats(RTPSink& rtpSink, u_int32_t SSRC)
     fLastSRTime(0), fDiffSR_RRTime(0), fAtLeastTwoRRsHaveBeenReceived(False), fFirstPacket(True),
     fTotalOctetCount_hi(0), fTotalOctetCount_lo(0),
     fTotalPacketCount_hi(0), fTotalPacketCount_lo(0) {
-  gettimeofday(&fTimeCreated, NULL);
+  gettickcount(&fTimeCreated, NULL);
 
   fLastOctetCount = rtpSink.octetCount();
   fLastPacketCount = rtpSink.packetCount();
@@ -271,7 +271,7 @@ void RTPTransmissionStats
     fOldLastPacketNumReceived = fLastPacketNumReceived;
     fOldTotNumPacketsLost = fTotNumPacketsLost;
   }
-  gettimeofday(&fTimeReceived, NULL);
+  gettickcount(&fTimeReceived, NULL);
 
   fLastFromAddress = lastFromAddress;
   fPacketLossRatio = lossStats>>24;

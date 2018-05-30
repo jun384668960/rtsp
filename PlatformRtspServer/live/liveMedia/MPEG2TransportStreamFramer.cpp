@@ -21,7 +21,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // Implementation
 
 #include "MPEG2TransportStreamFramer.hh"
-#include <GroupsockHelper.hh> // for "gettimeofday()"
+#include <GroupsockHelper.hh> // for "gettickcount()"
 
 #define TRANSPORT_PACKET_SIZE 188
 
@@ -175,7 +175,7 @@ void MPEG2TransportStreamFramer::afterGettingFrame1(unsigned frameSize,
   // Scan through the TS packets that we read, and update our estimate of
   // the duration of each packet:
   struct timeval tvNow;
-  gettimeofday(&tvNow, NULL);
+  gettickcount(&tvNow, NULL);
   double timeNow = tvNow.tv_sec + tvNow.tv_usec/1000000.0;
   for (unsigned i = 0; i < numTSPackets; ++i) {
     if (!updateTSPacketDurationEstimate(&fTo[i*TRANSPORT_PACKET_SIZE], timeNow)) {
