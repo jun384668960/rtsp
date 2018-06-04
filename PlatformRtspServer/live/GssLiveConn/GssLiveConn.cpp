@@ -89,6 +89,7 @@ GssLiveConn::~GssLiveConn()
 	Stop();
 	ClearVideoBuffer();
 	ClearAudioBuffer();
+	LOG_INFO("~GssLiveConn");
 //	printf("end GssLiveConn::~GssLiveConn()\n");
 }
 

@@ -219,8 +219,9 @@ public: // should be protected, but some old compilers complain otherwise
     char* fOurSessionCookie; // used for optional RTSP-over-HTTP tunneling
     unsigned fBase64RemainderCount; // used for optional RTSP-over-HTTP tunneling (possible values: 0,1,2,3)
 	char fStreamName[64];
-	GssLiveConn *fGssLiveConn;
+	
 public:
+	GssLiveConn *fGssLiveConn;
 	GssLiveConn *GetGssLiveConn() { return fGssLiveConn; }
   };
 

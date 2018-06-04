@@ -281,6 +281,8 @@ RTSPServer::RTSPClientConnection
 }
 
 RTSPServer::RTSPClientConnection::~RTSPClientConnection() {
+	
+  LOG_INFO("~RTSPClientConnection");
   if (fOurSessionCookie != NULL) {
     // We were being used for RTSP-over-HTTP tunneling. Also remove ourselves from the 'session cookie' hash table before we go:
     fOurRTSPServer.fClientConnectionsForHTTPTunneling->Remove(fOurSessionCookie);
@@ -290,17 +292,17 @@ RTSPServer::RTSPClientConnection::~RTSPClientConnection() {
   
   closeSocketsRTSP();
 
-  if(fGssLiveConn)
-  {
-//	  delete fGssLiveConn;
-//	  fGssLiveConn = NULL;
-		fGssLiveConn->decrementReferenceCount();
-		printf("~RTSPClientConnection fGssLiveConn:%p referenceCount:%d\n", fGssLiveConn, fGssLiveConn->referenceCount());
-		if(fGssLiveConn->referenceCount() <= 0)
-		{
-			delete fGssLiveConn;
-		}
-  }
+	if(fGssLiveConn)
+	{
+//		delete fGssLiveConn;
+//		fGssLiveConn = NULL;
+//		fGssLiveConn->decrementReferenceCount();
+//		LOG_INFO("~RTSPClientConnection fGssLiveConn:%p referenceCount:%d\n", fGssLiveConn, fGssLiveConn->referenceCount());
+//		if(fGssLiveConn->referenceCount() <= 0)
+//		{
+//			delete fGssLiveConn;
+//		}
+	}
 }
 
 // Handler routines for specific RTSP commands:
@@ -367,8 +369,7 @@ void RTSPServer::RTSPClientConnection
 		if(fGssLiveConn == NULL)
 		{
 			fGssLiveConn = new GssLiveConn(GssLiveConn::m_sGlobalInfos.domainDispath, GssLiveConn::m_sGlobalInfos.port, uid,true);
-			fGssLiveConn->incrementReferenceCount();
-			printf("~RTSPClientConnection fGssLiveConn:%p referenceCount:%d\n", fGssLiveConn, fGssLiveConn->referenceCount());
+//			LOG_INFO("~RTSPClientConnection fGssLiveConn:%p referenceCount:%d", fGssLiveConn, fGssLiveConn->referenceCount());
 		}
 		if(fGssLiveConn && !fGssLiveConn->Start() && !fGssLiveConn->IsConnected() )
 		{
@@ -389,8 +390,12 @@ void RTSPServer::RTSPClientConnection
     if (session == NULL) {
       handleCmd_notFound();
 	  LOG_ERROR("[DESCRIBE] can't find session");
+	  delete fGssLiveConn;
+	  fGssLiveConn = NULL;
       break;
     }
+	fGssLiveConn->incrementReferenceCount();
+	fGssLiveConn->incrementReferenceCount();
     
     // Increment the "ServerMediaSession" object's reference count, in case someone removes it
     // while we're using it:
@@ -1593,6 +1598,7 @@ void RTSPServer::RTSPClientSession
   delete[] concatenatedStreamName;
   LOG_INFO("[SETUP] bok = %d,client:%s:%d, fullRequestStr = %s",bOk,inet_ntoa(ourClientConnection->fClientAddr.sin_addr),ntohs(ourClientConnection->fClientAddr.sin_port),fullRequestStr);
   LOG_INFO("[SETUP] response: %s\n",(char*)ourClientConnection->fResponseBuffer);
+  ourClientConnection->fGssLiveConn->decrementReferenceCount();
   //printf("=========RTSPServer::RTSPClientConnection::handleCmd_SETUP end\n ");
 }
 

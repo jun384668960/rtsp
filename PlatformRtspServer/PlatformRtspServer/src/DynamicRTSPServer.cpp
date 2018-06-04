@@ -192,14 +192,10 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
 			strcpy(dstFileName,fileName);
 		else
 			sprintf(dstFileName,"%s%s",fileName,pcharClientconn);
-		//printf("-------------------dstFileName = %s\n",dstFileName);
-		NEW_SMS1("H264_G711A"); //dstFileName->对应mediasession中的streamname
+		NEW_SMS1("H264_G711A"); 
 		char uid[128] = {0};
 		strcpy(uid, pUID + strlen("uid="));
 		
-		//LOGI_print("createNewSMS:%s", dstFileName);
-
-		//rtspServer->addSeverLiveConns(fileName);
 		RTSPServer::RTSPClientConnection* pClientConnections = (RTSPServer::RTSPClientConnection*)pClientConn;
 		GssLiveConn* liveConn = NULL;
 		if(pClientConnections)
@@ -207,45 +203,43 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
 		if(liveConn && !liveConn->Start() && !liveConn->IsConnected() )
 		{
 			LOG_ERROR("[CREATENEWSMS] connect device is failed,dest file name = %s",dstFileName);
-			//printf("XXXXXXXXXX failed , start lookupservermediasession liveConn(%p) of %s\n",liveConn,fileName);
+			LOGE_print("connect device is failed");
 		}
-// 		if(liveConn == NULL)
-// 		{
-// 			LOGI_print("liveConn is null, new subsession h264 only");
-// 			sms->addSubsession(H264LiveVideoServerMediaSubsession::createNew(env, uid,NULL, False));
-// 		}
-// 		else 
 		if(liveConn && liveConn->IsConnected())
 		{
-			//LOGI_print("liveconn is %p, isconnect = %d",liveConn, liveConn->IsConnected());
+			LOGI_print("liveconn is %p, isconnect = %d",liveConn, liveConn->IsConnected());
 			int tmpAudioTypeIndex = 0;
-			while (tmpAudioTypeIndex++ < 40)
+			while (tmpAudioTypeIndex++ < 60)
 			{
 				if(liveConn->IsKnownAudioType() || !liveConn->IsConnected())
 				{
-					//printf("isaudiotype = %d,is connected = %d\n",liveConn->IsKnownAudioType(),liveConn->IsConnected());
 					break;
 				}
 				usleep(1000*100);
 			}
-			//LOGI_print("audio is known,is g711 = %d, aac = %d",liveConn->IsAudioG711AType(), liveConn->IsAudioAacType());
 			if( liveConn->IsKnownAudioType() && liveConn->IsConnected())
 			{
 				//LOGI_print("create sub session");
 				OutPacketBuffer::maxSize = 300000;
 				sms->addSubsession(H264LiveVideoServerMediaSubsession::createNew(env, uid,liveConn, False));
+//				liveConn->incrementReferenceCount();
 				//怎么判断是G711A还AAC呢
  				if( liveConn->IsAudioG711AType() )
+ 				{
+//					liveConn->incrementReferenceCount();
  					sms->addSubsession(PCMUServerMediaSubsession::createNew(env, uid,liveConn, False));
+				}
  				else if (liveConn->IsAudioAacType())
+ 				{
+//					liveConn->incrementReferenceCount();
  					sms->addSubsession(ADTSMainServerMediaSubsession::createNew(env,0,liveConn,False));
-				//sms->addSubsession(H264LiveVideoServerMediaSubsession::createNew(env, uid,liveConn, False));
+				}
 			}
 			else
 			{
 				//时间太久，无法判断音频类型
 				LOG_ERROR("[CREATENEWSMS] it's too long to get audio type");
-				//LOGI_print("there is unknown audiotype");
+				LOGW_print("there is unknown audiotype");
 				sms->decrementReferenceCount();
 			}
 		}

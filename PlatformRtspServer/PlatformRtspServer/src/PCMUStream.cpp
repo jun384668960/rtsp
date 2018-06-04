@@ -108,6 +108,7 @@ void PCMUStream::incomingDataHandler1()
 				fPresentationTime.tv_sec += uSeconds/1000000;
 				fPresentationTime.tv_usec = uSeconds%1000000;
 				m_ref = frameHeader.nTimestamp;
+//				gettickcount(&fPresentationTime, NULL);
 			}
 			
 			fDurationInMicroseconds = fuSecsPerFrame/2;
