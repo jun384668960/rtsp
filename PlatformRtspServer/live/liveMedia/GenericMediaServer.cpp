@@ -129,7 +129,7 @@ GenericMediaServer
 GenericMediaServer::~GenericMediaServer() {
   // Turn off background read handling:
   envir().taskScheduler().turnOffBackgroundReadHandling(fServerSocket);
-  ::closeSocket(fServerSocket);
+  closeSocket(fServerSocket);
 }
 
 void GenericMediaServer::cleanup() {
@@ -194,7 +194,7 @@ int GenericMediaServer::setUpOurSocket(UsageEnvironment& env, Port& ourPort) {
     return ourSocket;
   } while (0);
   
-  if (ourSocket != -1) ::closeSocket(ourSocket);
+  if (ourSocket != -1) closeSocket(ourSocket);
   return -1;
 }
 
@@ -299,7 +299,7 @@ GenericMediaServer::ClientConnection::~ClientConnection() {
 void GenericMediaServer::ClientConnection::closeSockets() {
   // Turn off background handling on our socket:
   envir().taskScheduler().disableBackgroundHandling(fOurSocket);
-  if (fOurSocket>= 0) ::closeSocket(fOurSocket);
+  if (fOurSocket>= 0) closeSocket(fOurSocket);
 
 //  printf("GenericMediaServer::ClientConnection::closeSockets = %d\n",fOurSocket);
 

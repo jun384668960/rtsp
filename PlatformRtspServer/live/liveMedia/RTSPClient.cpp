@@ -834,10 +834,10 @@ void RTSPClient::resetTCPSockets() {
   if (fInputSocketNum >= 0) {
     RTPInterface::clearServerRequestAlternativeByteHandler(envir(), fInputSocketNum); // in case we were receiving RTP-over-TCP
     envir().taskScheduler().disableBackgroundHandling(fInputSocketNum);
-    ::closeSocket(fInputSocketNum);
+    closeSocket(fInputSocketNum);
     if (fOutputSocketNum != fInputSocketNum) {
       envir().taskScheduler().disableBackgroundHandling(fOutputSocketNum);
-      ::closeSocket(fOutputSocketNum);
+      closeSocket(fOutputSocketNum);
     }
   }
   fInputSocketNum = fOutputSocketNum = -1;

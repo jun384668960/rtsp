@@ -109,7 +109,12 @@ typedef unsigned char u_int8_t;
 #include <unix.h>
 #endif
 
-#define closeSocket close
+//#define closeSocket close
+#define closeSocket(s) do{ \
+	linger so_linger = {~0, 0}; \
+	setsockopt(s, SOL_SOCKET, SO_LINGER, &so_linger, sizeof so_linger); \
+	::close(s); \
+}while(0)
 
 #ifdef SOLARIS
 #define u_int64_t uint64_t

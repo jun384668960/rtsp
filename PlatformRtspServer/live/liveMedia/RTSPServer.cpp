@@ -169,7 +169,7 @@ public:
 RTSPServer::~RTSPServer() {
   // Turn off background HTTP read handling (if any):
   envir().taskScheduler().turnOffBackgroundReadHandling(fHTTPServerSocket);
-  ::closeSocket(fHTTPServerSocket);
+  closeSocket(fHTTPServerSocket);
   
   cleanup(); // Removes all "ClientSession" and "ClientConnection" objects, and their tables.
   delete fClientConnectionsForHTTPTunneling;
@@ -642,7 +642,7 @@ void RTSPServer::RTSPClientConnection::closeSocketsRTSP() {
   // Turn off background handling on our input socket (and output socket, if different); then close it (or them):
   if (fClientOutputSocket != fClientInputSocket) {
     envir().taskScheduler().disableBackgroundHandling(fClientOutputSocket);
-    ::closeSocket(fClientOutputSocket);
+    closeSocket(fClientOutputSocket);
   }
   fClientOutputSocket = -1;
   

@@ -3,7 +3,7 @@
 #include "openssl/ssl.h"
 #include "openssl/rand.h"
 #include "openssl/err.h"
-
+#include <unistd.h>
 #include <sys/socket.h>
 #include <stdio.h>
 
@@ -349,7 +349,8 @@ void TlsHelper_Shutdown(TlsHelperObj tlsHelp)
 		if( SSL_shutdown(tmpTlsHelper->ssl) != 1)
 			SSL_shutdown(tmpTlsHelper->ssl);
 		SSL_free(tmpTlsHelper->ssl);
-		shutdown(tmpTlsHelper->sock,1); //关闭基础socket，该socket没有用作其他用处
+//		shutdown(tmpTlsHelper->sock,1); //关闭基础socket，该socket没有用作其他用处
+		close(tmpTlsHelper->sock);
 		free(tmpTlsHelper);
 	}
 }
