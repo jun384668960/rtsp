@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-#define MAX_AV_SIZE	10
+#define MAX_AV_VIDEO_SIZE	60
+#define MAX_AV_AUDIO_SIZE	100
 
 #pragma   pack(1)
 typedef struct GP2pHead_t
@@ -100,8 +100,8 @@ typedef struct _ggos_frame_head
 }GosFrameHead;
 
 class GssBuffer {
-#define MAX_BUFSIZE 60*1024
-#define MAX_BUFSIZEAUDIO 640
+#define MAX_BUFSIZE 256*1024
+#define MAX_BUFSIZEAUDIO 1024
 public:
 	GssBuffer(bool bVideo = true) {
 		if(bVideo)
@@ -215,13 +215,13 @@ protected:
 	void IncAudioNextInsertIndex();
 private:
 	MyClock m_lockVideo;
-	GssBuffer* m_bufferVideo[MAX_AV_SIZE];
+	GssBuffer* m_bufferVideo[MAX_AV_VIDEO_SIZE];
 	int m_currNextIndexVideoInsert;
 	int m_countsVideo;
 	int m_curVideoIndex;
 
 	MyClock m_lockAudio;
-	GssBuffer* m_bufferAudio[MAX_AV_SIZE];
+	GssBuffer* m_bufferAudio[MAX_AV_AUDIO_SIZE];
 	int m_currNextIndexAudioInsert;
 	int m_countsAudio;
 	int m_curAudioIndex;

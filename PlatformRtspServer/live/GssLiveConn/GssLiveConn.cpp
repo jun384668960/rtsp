@@ -17,8 +17,8 @@ GssLiveConn::GssLiveConn()
 	memset(m_server,0,sizeof(m_server));
 	memset(m_dispathServer,0,sizeof(m_dispathServer));
 	memset(m_uid,0,sizeof(m_uid));
-	memset(m_bufferVideo, 0, MAX_AV_SIZE*sizeof(GssBuffer*));
-	memset(m_bufferAudio, 0, MAX_AV_SIZE*sizeof(GssBuffer*));
+	memset(m_bufferVideo, 0, MAX_AV_VIDEO_SIZE*sizeof(GssBuffer*));
+	memset(m_bufferAudio, 0, MAX_AV_AUDIO_SIZE*sizeof(GssBuffer*));
 	m_currNextIndexVideoInsert = 0;
 	m_countsVideo = 0;
 	m_curVideoIndex = 0;
@@ -45,8 +45,8 @@ GssLiveConn::GssLiveConn(const char* server, unsigned short port,const char* uid
 	m_isConnected = false;
 	m_clientPullConn = NULL;
 	m_stusRlt = 0;
-	memset(m_bufferVideo, 0, MAX_AV_SIZE*sizeof(GssBuffer*));
-	memset(m_bufferAudio, 0, MAX_AV_SIZE*sizeof(GssBuffer*));
+	memset(m_bufferVideo, 0, MAX_AV_VIDEO_SIZE*sizeof(GssBuffer*));
+	memset(m_bufferAudio, 0, MAX_AV_AUDIO_SIZE*sizeof(GssBuffer*));
 	m_currNextIndexVideoInsert = 0;
 	m_countsVideo = 0;
 	m_curVideoIndex = 0;
@@ -302,7 +302,9 @@ int GssLiveConn::AudioFrameCount()
 
 void GssLiveConn::OnRecv( void *transport, void *user_data, char* data, int len, char type, unsigned int time_stamp )
 {
-//	printf("GssLiveConn::OnRecv len = %d\n",len);
+	if(data == NULL || len <= 0)
+		return;
+
 	GssLiveConn* pConn = (GssLiveConn*)user_data;
 	if(pConn)
 		pConn->AddFrame((unsigned char*)data,len);
@@ -368,7 +370,7 @@ void GssLiveConn::OnDeviceDisconnect( void *transport, void *user_data )
 
 void GssLiveConn::InitVideoBuffer()
 {
-	for (int i = 0; i < MAX_AV_SIZE; i++)
+	for (int i = 0; i < MAX_AV_VIDEO_SIZE; i++)
 	{
 		GssBuffer* tmpbuf = new GssBuffer();
 		m_bufferVideo[i] = tmpbuf;
@@ -377,7 +379,7 @@ void GssLiveConn::InitVideoBuffer()
 
 void GssLiveConn::ClearVideoBuffer()
 {
-	for (int i = 0; i < MAX_AV_SIZE; i++)
+	for (int i = 0; i < MAX_AV_VIDEO_SIZE; i++)
 	{
 		GssBuffer* tmpbuf = m_bufferVideo[i];
 		delete tmpbuf;
@@ -393,7 +395,7 @@ void GssLiveConn::DropAllVideoBuffer()
 	int tmpiFrame = -1;
 	if(m_countsVideo > 0)
 	{
-		for (int i = 0;  i < MAX_AV_SIZE; i++)
+		for (int i = 0;  i < MAX_AV_VIDEO_SIZE; i++)
 		{
 			if(m_bufferVideo[i]->m_frameHeader.nFrameType == gos_video_i_frame)
 			{
@@ -416,7 +418,7 @@ void GssLiveConn::DropAllVideoBuffer()
 
 void GssLiveConn::InitAudioBuffer()
 {
-	for (int i = 0; i < MAX_AV_SIZE; i++)
+	for (int i = 0; i < MAX_AV_AUDIO_SIZE; i++)
 	{
 		GssBuffer* tmpbuf = new GssBuffer(false);
 		m_bufferAudio[i] = tmpbuf;
@@ -425,7 +427,7 @@ void GssLiveConn::InitAudioBuffer()
 
 void GssLiveConn::ClearAudioBuffer()
 {
-	for (int i = 0; i < MAX_AV_SIZE; i++)
+	for (int i = 0; i < MAX_AV_AUDIO_SIZE; i++)
 	{
 		GssBuffer* tmpbuf = m_bufferAudio[i];
 		delete tmpbuf;
@@ -437,15 +439,9 @@ bool GssLiveConn::AddVideoFrame( unsigned char* pData, int datalen )
 {
 //	printf("Start AddVideoFrame \n");
 	bool bsuc = false;
-	bool bContinue = true;
 	do 
-	{
-		if (pData == NULL || datalen <= 0)
-		{
-			break;
-		}
-		m_lockVideo.Lock();
-
+	{		
+		//是否丢弃，直到下一个I帧
 		if(m_bDroped)
 		{
 			GosFrameHead *header = (GosFrameHead*)pData;
@@ -455,19 +451,18 @@ bool GssLiveConn::AddVideoFrame( unsigned char* pData, int datalen )
 			}
 			else
 			{
-				bContinue = false;
+				break;
 			}
 		}
 
-		if (!m_bDroped && m_countsVideo < MAX_AV_SIZE)
+		m_lockVideo.Lock();
+		if (m_countsVideo < MAX_AV_VIDEO_SIZE)
 		{
 			bsuc = m_bufferVideo[m_currNextIndexVideoInsert]->SetBuffer(pData,datalen);
 			if(bsuc)
 			{
 				if(m_audioType == gos_codec_unknown)
 				{
-//					m_audioType = (gos_codec_type_t)m_bufferAudio[m_currNextIndexAudioInsert]->m_frameHeader.nCodeType;
-//					printf("m_audioType = %d\n",m_audioType);
 					gos_codec_type_t codec_type = (gos_codec_type_t)m_bufferVideo[m_currNextIndexVideoInsert]->m_frameHeader.nCodeType;
 					if(codec_type == gos_video_H264_G711)
 					{
@@ -480,38 +475,33 @@ bool GssLiveConn::AddVideoFrame( unsigned char* pData, int datalen )
 				}
 				IncVideoNextInsertIndex();
 				m_countsVideo++;
-//				printf("********** add video frame success, %p\n",this);
 			}
-			else 
-			{
-				DropAllVideoBuffer();
-			}
-			bContinue = false;
 		}
 		else
-		{
-			DropAllVideoBuffer();
+		{	//无法再放入时，开始丢弃到下一个I帧
+			m_bDroped = true;
 		}
 		m_lockVideo.Unlock();
-		
-	} while (bContinue);
+	} while (0);
 
-//	printf("end AddVideoFrame \n");
 	return bsuc;
 }
 
 bool GssLiveConn::AddAudioFrame( unsigned char* pData, int datalen )
 {
 	bool bsuc = false;
-	bool bContinue = true;
 	do 
 	{
 		if (pData == NULL || datalen <= 0)
 		{
 			break;
 		}
+		//视频丢弃则这段音频也丢弃
+		if(m_bDroped)
+			break;
+		
 		m_lockAudio.Lock();
-		if (m_countsAudio < MAX_AV_SIZE)
+		if (m_countsAudio < MAX_AV_AUDIO_SIZE)
 		{
 			bsuc = m_bufferAudio[m_currNextIndexAudioInsert]->SetBuffer(pData,datalen);
 			if (bsuc)
@@ -522,17 +512,10 @@ bool GssLiveConn::AddAudioFrame( unsigned char* pData, int datalen )
 				}
 				IncAudioNextInsertIndex();
 				m_countsAudio++;
-//				printf("********** add audio frame success %p\n",this);
 			}
-			bContinue = false; //假设出现SetBuffer失败，则会跳过该音频
-		}
-		else
-		{
-			IncAudioIndex();
-			m_countsAudio--;
 		}
 		m_lockAudio.Unlock();
-	} while (bContinue);
+	} while (0);
 
 	return bsuc;
 }
@@ -542,17 +525,9 @@ bool GssLiveConn::AddFrame( unsigned char* pData, int datalen )
 	bool bsuc = false;
 	do 
 	{
-		if (pData == NULL || datalen <= 0)
-		{
-			break;
-		}
-
 		GP2pHead header;
 		memcpy(&header,pData,sizeof(GP2pHead));
 		//字节序 ?
-
-		//? header.size ?= datalen - sizeof(GP2pHead)
-//		printf("this is %p, type = %x\n",this,header.msgType);
 		if (m_isFirstFrame)
 		{
 			LOG_INFO("[GSSLIVECONN] incoming first frame, is video = %d",header.msgType == SND_VIDEO);
@@ -578,14 +553,13 @@ bool GssLiveConn::AddFrame( unsigned char* pData, int datalen )
 		m_isFirstFrame = false;
 	}
 
-//	printf("GssliveConn add frame end\n");
 	return bsuc;
 }
 
 void GssLiveConn::IncVideoIndex()
 {
 	m_curVideoIndex++;
-	if (m_curVideoIndex >= MAX_AV_SIZE)
+	if (m_curVideoIndex >= MAX_AV_VIDEO_SIZE)
 	{
 		m_curVideoIndex = 0;
 	}
@@ -594,7 +568,7 @@ void GssLiveConn::IncVideoIndex()
 void GssLiveConn::IncVideoNextInsertIndex()
 {
 	m_currNextIndexVideoInsert++;
-	if (m_currNextIndexVideoInsert >= MAX_AV_SIZE)
+	if (m_currNextIndexVideoInsert >= MAX_AV_VIDEO_SIZE)
 	{
 		m_currNextIndexVideoInsert = 0;
 	}
@@ -603,7 +577,7 @@ void GssLiveConn::IncVideoNextInsertIndex()
 void GssLiveConn::IncAudioIndex()
 {
 	m_curAudioIndex++;
-	if (m_curAudioIndex >= MAX_AV_SIZE)
+	if (m_curAudioIndex >= MAX_AV_AUDIO_SIZE)
 	{
 		m_curAudioIndex = 0;
 	}
@@ -612,7 +586,7 @@ void GssLiveConn::IncAudioIndex()
 void GssLiveConn::IncAudioNextInsertIndex()
 {
 	m_currNextIndexAudioInsert++;
-	if(m_currNextIndexAudioInsert >= MAX_AV_SIZE)
+	if(m_currNextIndexAudioInsert >= MAX_AV_AUDIO_SIZE)
 		m_currNextIndexAudioInsert = 0;
 }
 
