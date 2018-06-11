@@ -72,106 +72,57 @@ void H264LiveVideoSource::incomingDataHandler1()
 		fFrameSize = 0;
 		unsigned char* pData = NULL;
 		int datalen;
-		int nalu_type = 0;
 		GosFrameHead frameHeader;
 		
 		if(m_LiveSource->GetVideoFrame(&pData, datalen, frameHeader))
-		{
-//			LOGI_print("datalen:%d", datalen);
-			
-			fFrameSize = datalen;
-			if(fFrameSize > fMaxSize)
-			{
-				fNumTruncatedBytes = fFrameSize - fMaxSize;
-				fFrameSize = fMaxSize;
-			}
-			else
-			{
-				fNumTruncatedBytes = 0;
-			}
-
+		{			
 			unsigned char* data = pData;
-			nalu_type = data[4] & 0x1f;
-
-			if(nalu_type == 7)
-			{
-				if(m_front_nalu_type == 0)		//第一次取sps+pps+i -> sps
-				{
-					int nalu_len = get_annexb_nalu(data+m_front_nalu_len, fFrameSize-m_front_nalu_len);
-					fFrameSize = nalu_len - 4;
-					memcpy(fTo, data + m_front_nalu_len + 4, fFrameSize);
-					m_front_nalu_len += nalu_len;
-					m_front_nalu_type = 7;
-				}
-				else if(m_front_nalu_type == 7)	//第一次取sps+pps+i -> pps
-				{
-					int nalu_len = get_annexb_nalu(data+m_front_nalu_len, fFrameSize-m_front_nalu_len);
-					fFrameSize = nalu_len - 4;
-					memcpy(fTo, data + m_front_nalu_len + 4, fFrameSize);
-					m_front_nalu_len += nalu_len;
-					m_front_nalu_type = 8;
-				}
-				else if(m_front_nalu_type == 8)	//第一次取sps+pps+i -> 06
-				{
-					int nalu_len = get_annexb_nalu(data+m_front_nalu_len, fFrameSize-m_front_nalu_len);
-					fFrameSize = nalu_len - 4;
-					//memcpy(fTo, data + m_front_nalu_len + 4, fFrameSize);
-					m_front_nalu_len += nalu_len;
-					m_front_nalu_type = 6;
-				}
-				else if(m_front_nalu_type == 6)	//第一次取sps+pps+i -> i frame
-				{
-					fFrameSize = datalen - m_front_nalu_len - 4;
-					memcpy(fTo, data + m_front_nalu_len + 4, fFrameSize);
-					nalu_type = 5;
-					m_front_nalu_type = 0;
-					m_front_nalu_len = 0;
-				}
-			}
-			else
-			{
-				fFrameSize = datalen - 4;
-				memcpy(fTo, data + 4, fFrameSize);
-			}
-
-			if(fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0)
-			{
-				gettickcount(&fPresentationTime, NULL);
-				m_ref = frameHeader.nTimestamp;
-			}
-			else if(nalu_type == 1 || nalu_type == 5)
-			{
-				unsigned uSeconds = fPresentationTime.tv_usec + (frameHeader.nTimestamp - m_ref)*1000;
-				fPresentationTime.tv_sec += uSeconds/1000000;
-				fPresentationTime.tv_usec = uSeconds%1000000;
-				m_ref = frameHeader.nTimestamp;
-//				gettickcount(&fPresentationTime, NULL);
-			}
 			
-			if(nalu_type == 1 || nalu_type == 5)
+			NALU_t nalu;
+			int ret = get_annexb_nalu(data + m_front_nalu_len, datalen - m_front_nalu_len, &nalu);
+			if(ret > 0) m_front_nalu_len += nalu.len+4;
+			
+			if(nalu.nal_unit_type == 7 || nalu.nal_unit_type == 8
+				|| nalu.nal_unit_type == 1 || nalu.nal_unit_type == 5)
 			{
-				fDurationInMicroseconds = 1000000/50;
-				LOGI_print("framer video %p pData length:%d fFrameSize:%d VideoFrameCount:%d"
-					, m_LiveSource, datalen, fFrameSize, m_LiveSource->VideoFrameCount());
-				m_LiveSource->FreeVideoFrame();
+//				LOGI_print("nal_unit_type:%d data:%p buf:%p len:%u", nalu.nal_unit_type, data, nalu.buf, nalu.len);
+				fFrameSize = nalu.len;
+				memcpy(fTo, nalu.buf, nalu.len);
+
+				if(fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0)
+				{
+					gettickcount(&fPresentationTime, NULL);
+					m_ref = frameHeader.nTimestamp;
+				}
+				else if(nalu.nal_unit_type == 1 || nalu.nal_unit_type == 5)
+				{
+					unsigned uSeconds = fPresentationTime.tv_usec + (frameHeader.nTimestamp - m_ref)*1000;
+					fPresentationTime.tv_sec += uSeconds/1000000;
+					fPresentationTime.tv_usec = uSeconds%1000000;
+					m_ref = frameHeader.nTimestamp;
+	//				gettickcount(&fPresentationTime, NULL);
+				}
+
+				if(nalu.nal_unit_type == 1 || nalu.nal_unit_type == 5)
+				{
+					m_front_nalu_len = 0;
+					fDurationInMicroseconds = 1000000/50;
+					LOGI_print("framer video %p pData length:%d fFrameSize:%d VideoFrameCount:%d"
+						, m_LiveSource, datalen, fFrameSize, m_LiveSource->VideoFrameCount());
+					
+					m_LiveSource->FreeVideoFrame();
+				}
+				nextTask() = envir().taskScheduler().scheduleDelayedTask(0,(TaskFunc*)FramedSource::afterGetting, this);
 			}
 			else
 			{
 				fDurationInMicroseconds = 0;
-			}
-			if(m_front_nalu_type == 6 || m_front_nalu_type == 9)	//skip 06 09
-			{
 				nextTask() = envir().taskScheduler().scheduleDelayedTask(0,
 						(TaskFunc*)incomingDataHandler, this);
-			}
-			else
-			{
-				nextTask() = envir().taskScheduler().scheduleDelayedTask(0,(TaskFunc*)FramedSource::afterGetting, this);
 			}
 		}
 		else
 		{
-//			LOGE_print("GetVideoFrame error");
 			nextTask() = envir().taskScheduler().scheduleDelayedTask(5*1000,
 			(TaskFunc*)incomingDataHandler, this);
 		}
