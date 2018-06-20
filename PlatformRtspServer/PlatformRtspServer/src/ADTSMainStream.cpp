@@ -130,15 +130,15 @@ void ADTSMainSource::incomingDataHandler1()
 			}
 			fDurationInMicroseconds = fuSecsPerFrame/2;
 
-			LOGI_print("framer audio %p pData length:%d fFrameSize:%d AudioFrameCount:%d"
-				, m_LiveSource, datalen, fFrameSize, m_LiveSource->AudioFrameCount());
+//			LOGI_print("framer audio %p pData length:%d fFrameSize:%d AudioFrameCount:%d"
+//				, m_LiveSource, datalen, fFrameSize, m_LiveSource->AudioFrameCount());
 			m_LiveSource->FreeAudioFrame();
 
 			nextTask() = envir().taskScheduler().scheduleDelayedTask(0,(TaskFunc*)FramedSource::afterGetting, this);
 		}
 		else
 		{
-			//			LOGE_print("GetVideoFrame error");
+//			LOGE_print("GetVideoFrame error");
 			nextTask() = envir().taskScheduler().scheduleDelayedTask(5*1000,
 				(TaskFunc*)incomingDataHandler, this);
 		}

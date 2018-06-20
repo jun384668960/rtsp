@@ -31,6 +31,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include <stdio.h>
 
 int g_loglvl = 15;
+int g_livesecs = 0;
 char g_logpath[1024] = {0};
 char g_dipatchServer[1024] = {0};
 int g_enablelog = 1;
@@ -46,6 +47,7 @@ enum {
 	type_opt_log,
 	type_opt_disable_log,
 	type_opt_loglvl,
+	type_opt_livesecs,
 	type_opt_count,
 };
 
@@ -56,7 +58,8 @@ char g_optval[type_opt_count][20] = {
 	"--key",
 	"--log",
 	"--disable_log",
-	"--loglvl"
+	"--loglvl",
+	"--livesecs",
 };
 
 
@@ -69,14 +72,16 @@ void PrintHelp()
 		"%-15s %-25s [PATH] -> ex: \"key.pem\",The Private key must be in PEM format\n"
 		"%-15s %-25s [PATH] -> ex /var/log/ or log/, the director must be exist; default path = ./\n"
 		"%-15s %-25s [yes/no] ->default log is opened, use this option to disable log\n"
-		"%-15s %-25s [VALUE] -> [1->Error, 2 -> warn, 4 -> info, 8 -> debug], combination this value\n" ,
+		"%-15s %-25s [VALUE] -> [1->Error, 2 -> warn, 4 -> info, 8 -> debug], combination this value\n"
+		"%-15s %-25s [SECS] -> keep alive in seconds\n" ,
 		g_optval[type_opt_help],
 		g_optval[type_opt_dispath],"= [DISPATCH SERVER]",
 		g_optval[type_opt_cert],"= [PATH]",
 		g_optval[type_opt_key],"= [PATH]",
 		g_optval[type_opt_log],"= [PATH]",
 		g_optval[type_opt_disable_log],"= [yes/no]",
-		g_optval[type_opt_loglvl],"= [VALUE]"
+		g_optval[type_opt_loglvl],"= [VALUE]",
+		g_optval[type_opt_livesecs],"= [SECS]"
 	);
 }
 
@@ -164,6 +169,9 @@ int GetOpt(int type, int argc, char** argv)
 		case type_opt_loglvl:
 			g_loglvl = atoi(pFinddest);
 			break;
+		case type_opt_livesecs:
+			g_livesecs = atoi(pFinddest);
+			break;
 		case type_opt_disable_log:
 			{
 				char pTmp[1024] = {0};
@@ -223,10 +231,18 @@ int ParseArgs(int argc, char** argv)
 	else
 	{
 		g_bTlsSupport = 1;
-		printf("program will support tls, tls default port is 443!");
+		printf("program will support tls, tls default port is 443!\n");
 	}
 
-
+	if( GetOpt(type_opt_livesecs,argc,argv) != 0)
+	{
+		printf("no live secs limit\n");
+	}
+	else
+	{
+		printf("live secs limits in %d sec\n", g_livesecs);
+	}
+	
 	for (int i = type_opt_log; i< type_opt_count; i++)
 	{
 		GetOpt(i,argc	, argv);
@@ -246,7 +262,9 @@ int main(int argc, char** argv) {
 	char* pLogPath = NULL;
 	if(g_enablelog)
 		pLogPath = g_logpath;
-
+	if(g_livesecs > 0)
+		GssLiveConn::SetForceLiveSec(g_livesecs);
+	
  	if(!GssLiveConn::GlobalInit(g_dipatchServer,pLogPath,g_loglvl))
  	{
  		LOGE_print("p2p_init error");

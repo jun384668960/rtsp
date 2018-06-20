@@ -163,6 +163,8 @@ class GssLiveConn { //调用此类进行使用之前，先调用GlobalInit进行
 public:
 	static bool GlobalInit(const char* pserver, const char* plogpath, int loglvl); //ex: pserver = "120.23.23.33:6001" 或者 "cnp2p.ulifecam.com:6001" ;plogpath = "/var/log/live555"
 	static void GlobalUnInit();
+	static bool SetForceLiveSec(int sec);
+	
 	GssLiveConn();
 	GssLiveConn(const char* server, unsigned short port, const char* uid, bool bDispath = true);
 	virtual ~GssLiveConn();
@@ -243,8 +245,11 @@ private:
 	
 	MySem m_semt;
 	bool m_isFirstFrame;
+	bool				m_forcePause;
+	unsigned int		m_liveRef;
 public:
-	static SGlobalInfo m_sGlobalInfos;
+	static SGlobalInfo 	m_sGlobalInfos;
+	static int			m_forceLiveSec;
 };
 
 #endif //_GSSLIVECONN_H__

@@ -107,8 +107,8 @@ void H264LiveVideoSource::incomingDataHandler1()
 				{
 					m_front_nalu_len = 0;
 					fDurationInMicroseconds = 1000000/50;
-					LOGI_print("framer video %p pData length:%d fFrameSize:%d VideoFrameCount:%d"
-						, m_LiveSource, datalen, fFrameSize, m_LiveSource->VideoFrameCount());
+//					LOGI_print("framer video %p pData length:%d fFrameSize:%d VideoFrameCount:%d"
+//						, m_LiveSource, datalen, fFrameSize, m_LiveSource->VideoFrameCount());
 					
 					m_LiveSource->FreeVideoFrame();
 				}

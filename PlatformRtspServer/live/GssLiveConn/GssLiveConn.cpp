@@ -10,6 +10,8 @@
 #include <math.h>
 
 bool GssLiveConn::m_isInitedGlobal = false;
+int	 GssLiveConn::m_forceLiveSec = 0;
+
 SGlobalInfo GssLiveConn::m_sGlobalInfos;
 
 GssLiveConn::GssLiveConn()
@@ -34,6 +36,9 @@ GssLiveConn::GssLiveConn()
 	m_referenceCount = 0;
 	m_bDroped = false;
 	m_isFirstFrame = true;
+	
+	m_forcePause = false;
+	m_liveRef = 0;
 
 	InitVideoBuffer();
 	InitAudioBuffer();
@@ -57,7 +62,10 @@ GssLiveConn::GssLiveConn(const char* server, unsigned short port,const char* uid
 	m_referenceCount = 0;
 	m_bDroped = false;
 	m_isFirstFrame = true;
-
+	
+	m_forcePause = false;
+	m_liveRef = 0;
+	
 	if(bDispath)
 	{
 		if (server)
@@ -442,9 +450,9 @@ bool GssLiveConn::AddVideoFrame( unsigned char* pData, int datalen )
 	do 
 	{		
 		//是否丢弃，直到下一个I帧
+		GosFrameHead *header = (GosFrameHead*)pData;
 		if(m_bDroped)
 		{
-			GosFrameHead *header = (GosFrameHead*)pData;
 			if (header->nFrameType == gos_video_i_frame)
 			{
 				m_bDroped = false;
@@ -455,6 +463,20 @@ bool GssLiveConn::AddVideoFrame( unsigned char* pData, int datalen )
 			}
 		}
 
+		//开始时间，准备计算时间
+		if(GssLiveConn::m_forceLiveSec > 0)
+		{
+			if(m_liveRef == 0)
+			{
+				m_liveRef = header->nTimestamp;
+			}
+			else if(header->nTimestamp - m_liveRef > GssLiveConn::m_forceLiveSec*1000)
+			{
+				printf("m_forcePause now\n");
+				m_forcePause = true;//标志，不在添加数据
+			}
+		}
+				
 		m_lockVideo.Lock();
 		if (m_countsVideo < MAX_AV_VIDEO_SIZE)
 		{
@@ -522,6 +544,9 @@ bool GssLiveConn::AddAudioFrame( unsigned char* pData, int datalen )
 
 bool GssLiveConn::AddFrame( unsigned char* pData, int datalen )
 {
+	if(m_forcePause)
+		return false;
+	
 	bool bsuc = false;
 	do 
 	{
@@ -588,6 +613,13 @@ void GssLiveConn::IncAudioNextInsertIndex()
 	m_currNextIndexAudioInsert++;
 	if(m_currNextIndexAudioInsert >= MAX_AV_AUDIO_SIZE)
 		m_currNextIndexAudioInsert = 0;
+}
+
+bool GssLiveConn::SetForceLiveSec(int sec)
+{
+	printf("m_forceLiveSec:%d\n", sec);
+	GssLiveConn::m_forceLiveSec = sec;
+	return true;
 }
 
 bool GssLiveConn::IsAudioG711AType()

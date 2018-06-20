@@ -282,6 +282,10 @@ GenericMediaServer::ClientConnection
 }
 
 GenericMediaServer::ClientConnection::~ClientConnection() {
+  // Remove ourself from the server's 'client connections' hash table before we go:
+  fOurServer.fClientConnections->Remove((char const*)this);
+  
+  closeSockets();
 //	printf("delete clientconnection, supporttls = %d\n",fSupportTls);
 	if (fSupportTls)
 	{
@@ -290,10 +294,6 @@ GenericMediaServer::ClientConnection::~ClientConnection() {
 		LOG_INFO("[CLIENTCONNECTION] TlsHelper_Shutdown tlssocket = %d",fTlsSocket);
 //		printf("shutdown tls ok\n");
 	}
-  // Remove ourself from the server's 'client connections' hash table before we go:
-  fOurServer.fClientConnections->Remove((char const*)this);
-  
-  closeSockets();
 }
 
 void GenericMediaServer::ClientConnection::closeSockets() {
