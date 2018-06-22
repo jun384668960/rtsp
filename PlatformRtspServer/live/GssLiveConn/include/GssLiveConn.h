@@ -3,8 +3,13 @@
 
 #include "MyClock.h"
 #include "MySemaphore.h"
+#include "MySqlPool.h"
+
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
+#include <map>
+#include <string>
 
 #define MAX_AV_VIDEO_SIZE	60
 #define MAX_AV_AUDIO_SIZE	100
@@ -157,11 +162,18 @@ typedef struct _globalInfo {
 	char domainDispath[256];
 	unsigned short port;
 	char logs[1024];
+	int maxPlayTime;
+	MyClock lock;
+	std::map<std::string,unsigned int> mapTimes;
 }SGlobalInfo;
 
 class GssLiveConn { //调用此类进行使用之前，先调用GlobalInit进行全局操作的初始化
 public:
-	static bool GlobalInit(const char* pserver, const char* plogpath, int loglvl); //ex: pserver = "120.23.23.33:6001" 或者 "cnp2p.ulifecam.com:6001" ;plogpath = "/var/log/live555"
+	static bool GlobalInit(	const char* pserver, const char* plogpath, int loglvl, //ex: pserver = "120.23.23.33:6001" 或者 "cnp2p.ulifecam.com:6001" ;plogpath = "/var/log/live555"
+										const char* sqlHost, int sqlPort, //数据的HOST,PORT
+										const char* sqlUser, const char* sqlPasswd, const char* dbName, //数据库登录用户名和密码,数据库名称，
+										int maxCounts, //连接池中数据库连接的最大数,假设有n个业务线程使用该连接池，建议:maxCounts=n,假设n>20, 建议maxCounts=20
+										int maxPlayTime); //最大播放时长(单位分钟)
 	static void GlobalUnInit();
 	static bool SetForceLiveSec(int sec);
 	
@@ -215,6 +227,13 @@ protected:
 	void IncVideoNextInsertIndex();
 	void IncAudioIndex();
 	void IncAudioNextInsertIndex();
+
+	bool IsReachedMaxPlayTimeofDay(int theMaxTimeMin, const char* guid, int & leftTimeSec);
+	bool AddNewPlayTime(const char* guid);
+	bool DelPlayTime(const char* guid);
+public:
+	static bool UpdatePlayTime(int onceTime, const char* guid);
+
 private:
 	MyClock m_lockVideo;
 	GssBuffer* m_bufferVideo[MAX_AV_VIDEO_SIZE];
@@ -241,15 +260,18 @@ private:
 
 	char m_dispathServer[256];
 	unsigned short m_dispathPort;
-	static bool m_isInitedGlobal;
 	
 	MySem m_semt;
 	bool m_isFirstFrame;
 	bool				m_forcePause;
 	unsigned int		m_liveRef;
+	int m_forceLiveSecLeftTime;
 public:
+	static bool m_isInitedGlobal;
 	static SGlobalInfo 	m_sGlobalInfos;
 	static int			m_forceLiveSec;
+	static MySqlPool* m_smysqlpool;
+	static pthread_t m_spthread;
 };
 
 #endif //_GSSLIVECONN_H__

@@ -19,6 +19,6 @@ EXE =
 
 ifeq ($(SSL),openssl) 
 LIBS_SSL_DIR := ../extend
-LIBS_SSL :=  -lp2p -pthread -lssl -lcrypto -ldl
+LIBS_SSL :=  -lmysqlclient -lp2p -pthread -lssl -lcrypto -ldl
 CONSOLE_LINK_OPTS +=		-DSSL_MODE  -I$(LIBS_SSL_DIR)/include -L$(LIBS_SSL_DIR)/lib
 endif

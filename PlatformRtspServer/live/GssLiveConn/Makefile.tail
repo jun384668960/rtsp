@@ -9,7 +9,7 @@ all:	$(ALL)
 .$(CPP).$(OBJ):
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
-GROUPSOCK_LIB_OBJS = GssLiveConn.$(OBJ) Log.$(OBJ) MyClock.$(OBJ) MySemaphore.$(OBJ)
+GROUPSOCK_LIB_OBJS = GssLiveConn.$(OBJ) Log.$(OBJ) MyClock.$(OBJ) MySemaphore.$(OBJ) MySqlPool.$(OBJ) MyuseMysql.$(OBJ) tm.$(OBJ) PublicMysql.$(OBJ)
 
 GssLiveConn.$(CPP):	include/GssLiveConn.h
 include/GssLiveConn.h:	include/MyClock.h
@@ -17,6 +17,10 @@ include/NetAddress.hh:	include/NetCommon.h include/MySemaphore.h
 Log.$(CPP):	include/Log.h
 MyClock.$(CPP):		include/MyClock.h
 MySemaphore.$(CPP):	include/MySemaphore.h
+MySqlPool.$(CPP):	include/MySqlPool.h
+MyuseMysql.$(CPP):	include/MyuseMysql.h
+PublicMysql.$(CPP):	include/PublicMysql.h
+tm.$(C):	include/tm.h
 
 libgssliveconn.$(LIB_SUFFIX): $(GROUPSOCK_LIB_OBJS) \
     $(PLATFORM_SPECIFIC_LIB_OBJS)
