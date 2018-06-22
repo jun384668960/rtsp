@@ -265,9 +265,9 @@ int main(int argc, char** argv) {
 	if(g_livesecs > 0)
 		GssLiveConn::SetForceLiveSec(g_livesecs);
 	
- 	if(!GssLiveConn::GlobalInit(g_dipatchServer,pLogPath,g_loglvl,"127.0.0.1",3306,"root","goscam66%%DB","rtsp_db",4,180))
+ 	if(!GssLiveConn::GlobalInit(g_dipatchServer,pLogPath,g_loglvl,"127.0.0.1",3306,"root","Ulife@2018","rtsp_db",4,180))
  	{
- 		LOGE_print("p2p_init error");
+ 		LOGE_print("GlobalInit error");
  		return ret;
  	}
 

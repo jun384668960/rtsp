@@ -2,8 +2,8 @@
 CC := $(CROSS)c++
 CFLAG := -DALLOW_SERVER_PORT_REUSE -Wno-write-strings \
 		-lliveMedia -lgroupsock -lBasicUsageEnvironment -lUsageEnvironment \
-		-lssl -lcrypto -lgssliveconn -lmysqlclient -lp2p -lrt -ldl -lpthread \
-		-lm -L./lib -L/usr/lib/x86_64-linux-gnu \
+		-lssl -lcrypto -lgssliveconn -lmysqlclient -lz -lp2p -lrt -ldl -lpthread \
+		-lm -L./lib \
 		-I./live555/BasicUsageEnvironment/include \
 		-I./live555/groupsock/include \
 		-I./live555/liveMedia/include \
