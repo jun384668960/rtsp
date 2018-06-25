@@ -32,6 +32,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 int g_loglvl = 15;
 int g_livesecs = 0;
+char g_mysqlPwd[1024] = {0};
 char g_logpath[1024] = {0};
 char g_dipatchServer[1024] = {0};
 int g_enablelog = 1;
@@ -48,6 +49,7 @@ enum {
 	type_opt_disable_log,
 	type_opt_loglvl,
 	type_opt_livesecs,
+	type_opt_pmysql,
 	type_opt_count,
 };
 
@@ -60,6 +62,7 @@ char g_optval[type_opt_count][20] = {
 	"--disable_log",
 	"--loglvl",
 	"--livesecs",
+	"--pmysql",
 };
 
 
@@ -73,7 +76,8 @@ void PrintHelp()
 		"%-15s %-25s [PATH] -> ex /var/log/ or log/, the director must be exist; default path = ./\n"
 		"%-15s %-25s [yes/no] ->default log is opened, use this option to disable log\n"
 		"%-15s %-25s [VALUE] -> [1->Error, 2 -> warn, 4 -> info, 8 -> debug], combination this value\n"
-		"%-15s %-25s [SECS] -> keep alive in seconds\n" ,
+		"%-15s %-25s [SECS] -> keep alive in seconds\n"
+		"%-15s %-25s [STRING] -> mysql root password\n" ,
 		g_optval[type_opt_help],
 		g_optval[type_opt_dispath],"= [DISPATCH SERVER]",
 		g_optval[type_opt_cert],"= [PATH]",
@@ -81,7 +85,8 @@ void PrintHelp()
 		g_optval[type_opt_log],"= [PATH]",
 		g_optval[type_opt_disable_log],"= [yes/no]",
 		g_optval[type_opt_loglvl],"= [VALUE]",
-		g_optval[type_opt_livesecs],"= [SECS]"
+		g_optval[type_opt_livesecs],"= [SECS]",
+		g_optval[type_opt_pmysql],"= [STRING]"
 	);
 }
 
@@ -172,6 +177,9 @@ int GetOpt(int type, int argc, char** argv)
 		case type_opt_livesecs:
 			g_livesecs = atoi(pFinddest);
 			break;
+		case type_opt_pmysql:
+			strcpy(g_mysqlPwd,pFinddest);
+			break;
 		case type_opt_disable_log:
 			{
 				char pTmp[1024] = {0};
@@ -209,14 +217,14 @@ int ParseArgs(int argc, char** argv)
 
 	if( GetOpt(type_opt_dispath,argc,argv) != 0)
 	{
-		printf("no dispatch server to be specified\n");
+		LOGI_print("no dispatch server to be specified");
 		return -1;
 	}
 
 	if( GetOpt(type_opt_cert,argc,argv) != 0)
 	{
 		g_bTlsSupport = 0;
-		printf("no certificates file to be specified, program will not support tls\n");
+		LOGI_print("no certificates file to be specified, program will not support tls");
 	}
 	else
 	{
@@ -226,21 +234,31 @@ int ParseArgs(int argc, char** argv)
 	if( GetOpt(type_opt_key,argc,argv) != 0)
 	{
 		g_bTlsSupport = 0;
-		printf("no private key file to be specified, program will not support tls\n");
+		LOGI_print("no private key file to be specified, program will not support tls");
 	}
 	else
 	{
 		g_bTlsSupport = 1;
-		printf("program will support tls, tls default port is 443!\n");
+		LOGI_print("program will support tls, tls default port is 443!");
 	}
 
 	if( GetOpt(type_opt_livesecs,argc,argv) != 0)
 	{
-		printf("no live secs limit\n");
+		LOGI_print("no live secs limit\n");
 	}
 	else
 	{
-		printf("live secs limits in %d sec\n", g_livesecs);
+		LOGI_print("live secs limits in %d sec", g_livesecs);
+	}
+
+	if( GetOpt(type_opt_pmysql,argc,argv) != 0)
+	{
+		LOGI_print("mysql root password no set");
+		return -1;
+	}
+	else
+	{
+		LOGI_print("mysql root password :%s", g_mysqlPwd);
 	}
 	
 	for (int i = type_opt_log; i< type_opt_count; i++)
@@ -265,7 +283,7 @@ int main(int argc, char** argv) {
 	if(g_livesecs > 0)
 		GssLiveConn::SetForceLiveSec(g_livesecs);
 	
- 	if(!GssLiveConn::GlobalInit(g_dipatchServer,pLogPath,g_loglvl,"127.0.0.1",3306,"root","Ulife@2018","rtsp_db",4,180))
+ 	if(!GssLiveConn::GlobalInit(g_dipatchServer,pLogPath,g_loglvl,"127.0.0.1",3306,"root",g_mysqlPwd,"rtsp_db",4,180))
  	{
  		LOGE_print("GlobalInit error");
  		return ret;

@@ -294,14 +294,11 @@ RTSPServer::RTSPClientConnection::~RTSPClientConnection() {
 
 	if(fGssLiveConn)
 	{
-//		delete fGssLiveConn;
-//		fGssLiveConn = NULL;
-//		fGssLiveConn->decrementReferenceCount();
-//		LOG_INFO("~RTSPClientConnection fGssLiveConn:%p referenceCount:%d\n", fGssLiveConn, fGssLiveConn->referenceCount());
-//		if(fGssLiveConn->referenceCount() <= 0)
-//		{
-//			delete fGssLiveConn;
-//		}
+		fGssLiveConn->decrementReferenceCount();
+		if(fGssLiveConn->referenceCount() <= 0)
+		{
+			delete fGssLiveConn;
+		}
 	}
 }
 
@@ -394,7 +391,6 @@ void RTSPServer::RTSPClientConnection
 	  fGssLiveConn = NULL;
       break;
     }
-	fGssLiveConn->incrementReferenceCount();
 	fGssLiveConn->incrementReferenceCount();
     
     // Increment the "ServerMediaSession" object's reference count, in case someone removes it
@@ -1598,7 +1594,6 @@ void RTSPServer::RTSPClientSession
   delete[] concatenatedStreamName;
   LOG_INFO("[SETUP] bok = %d,client:%s:%d, fullRequestStr = %s",bOk,inet_ntoa(ourClientConnection->fClientAddr.sin_addr),ntohs(ourClientConnection->fClientAddr.sin_port),fullRequestStr);
   LOG_INFO("[SETUP] response: %s\n",(char*)ourClientConnection->fResponseBuffer);
-  ourClientConnection->fGssLiveConn->decrementReferenceCount();
   //printf("=========RTSPServer::RTSPClientConnection::handleCmd_SETUP end\n ");
 }
 

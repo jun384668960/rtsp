@@ -36,6 +36,11 @@ extern "C" int initializeWinsockIfNecessary();
 #define USE_SIGNALS 1
 #endif
 #include <stdio.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <netinet/tcp.h>
 
 // By default, use INADDR_ANY for the sending and receiving interfaces:
 netAddressBits SendingInterfaceAddr = INADDR_ANY;
@@ -172,6 +177,19 @@ int setupDatagramSocket(UsageEnvironment& env, Port port) {
   }
 
   return newSocket;
+}
+
+void makeSocketKeepAlive(int sock, int sec)
+{
+	int keepAlive = 1; // 开启keepalive属性
+	int keepIdle = sec; // 如该连接在60秒内没有任何数据往来,则进行探测 
+	int keepInterval = 5; // 探测时发包的时间间隔为5 秒
+	int keepCount = 3; // 探测尝试的次数.如果第1次探测包就收到响应了,则后2次的不再发.
+
+	setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepAlive, sizeof(keepAlive));
+	setsockopt(sock, SOL_TCP, TCP_KEEPIDLE, (void*)&keepIdle, sizeof(keepIdle));
+	setsockopt(sock, SOL_TCP, TCP_KEEPINTVL, (void *)&keepInterval, sizeof(keepInterval));
+	setsockopt(sock, SOL_TCP, TCP_KEEPCNT, (void *)&keepCount, sizeof(keepCount)); 
 }
 
 Boolean makeSocketNonBlocking(int sock) {

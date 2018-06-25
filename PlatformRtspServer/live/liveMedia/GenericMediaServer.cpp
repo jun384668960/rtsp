@@ -217,6 +217,8 @@ void GenericMediaServer::incomingConnectionHandlerOnSocket(int serverSocket) {
     }
     return;
   }
+
+  makeSocketKeepAlive(clientSocket, 6);
   ignoreSigPipeOnSocket(clientSocket); // so that clients on the same host that are killed don't also kill us
   makeSocketNonBlocking(clientSocket);
   increaseSendBufferTo(envir(), clientSocket, 50*1024);

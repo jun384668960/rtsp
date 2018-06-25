@@ -56,6 +56,7 @@ unsigned increaseSendBufferTo(UsageEnvironment& env,
 unsigned increaseReceiveBufferTo(UsageEnvironment& env,
 				 int socket, unsigned requestedSize);
 
+void makeSocketKeepAlive(int sock, int sec);
 Boolean makeSocketNonBlocking(int sock);
 Boolean makeSocketBlocking(int sock, unsigned writeTimeoutInMilliseconds = 0);
   // A "writeTimeoutInMilliseconds" value of 0 means: Don't timeout
