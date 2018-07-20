@@ -32,6 +32,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 int g_loglvl = 15;
 int g_livesecs = 0;
+int g_daylivemins = 0;
 char g_mysqlPwd[1024] = {0};
 char g_logpath[1024] = {0};
 char g_dipatchServer[1024] = {0};
@@ -49,6 +50,7 @@ enum {
 	type_opt_disable_log,
 	type_opt_loglvl,
 	type_opt_livesecs,
+	type_opt_daylivemins,
 	type_opt_pmysql,
 	type_opt_count,
 };
@@ -62,6 +64,7 @@ char g_optval[type_opt_count][20] = {
 	"--disable_log",
 	"--loglvl",
 	"--livesecs",
+	"--daylivemins",
 	"--pmysql",
 };
 
@@ -177,6 +180,9 @@ int GetOpt(int type, int argc, char** argv)
 		case type_opt_livesecs:
 			g_livesecs = atoi(pFinddest);
 			break;
+		case type_opt_daylivemins:
+			g_daylivemins = atoi(pFinddest);
+			break;
 		case type_opt_pmysql:
 			strcpy(g_mysqlPwd,pFinddest);
 			break;
@@ -272,6 +278,8 @@ int ParseArgs(int argc, char** argv)
 int main(int argc, char** argv) {
 
   	int ret;
+	int daylivemins = 0;
+	int liveseconds = 0;
 	if (ParseArgs(argc,argv) != 0)
 	{
 		return -1;
@@ -281,9 +289,27 @@ int main(int argc, char** argv) {
 	if(g_enablelog)
 		pLogPath = g_logpath;
 	if(g_livesecs > 0)
-		GssLiveConn::SetForceLiveSec(g_livesecs);
+	{
+		liveseconds = g_livesecs;
+	}
+	else
+	{
+		liveseconds = 600;
+	}
 	
- 	if(!GssLiveConn::GlobalInit(g_dipatchServer,pLogPath,g_loglvl,"127.0.0.1",3306,"root",g_mysqlPwd,"rtsp_db",4,180))
+	if(g_daylivemins > 0)
+	{
+		daylivemins = g_daylivemins;
+	}
+	else
+	{
+		daylivemins = 60;
+	}
+	
+	GssLiveConn::SetForceLiveSec(liveseconds);
+	LOGI_print("set single live seconds:%d day live minutes:%d", liveseconds, daylivemins);
+	
+ 	if(!GssLiveConn::GlobalInit(g_dipatchServer,pLogPath,g_loglvl,"127.0.0.1",3306,"root",g_mysqlPwd,"rtsp_db",4,daylivemins))
  	{
  		LOGE_print("GlobalInit error");
  		return ret;
