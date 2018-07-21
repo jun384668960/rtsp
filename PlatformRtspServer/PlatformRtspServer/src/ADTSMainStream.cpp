@@ -58,6 +58,7 @@ ADTSMainSource::ADTSMainSource(UsageEnvironment& env, int sub, u_int8_t profile,
 	sprintf(fConfigStr, "%02X%02x", audioSpecificConfig[0], audioSpecificConfig[1]);
 	m_LiveSource = liveSource;
 	m_ref = -1;
+	m_nullTimes = 0;
 	
 	m_LiveSource->incrementReferenceCount();
 	LOGI_print("ADTSMainSource m_LiveSource:%p referenceCount:%d ", m_LiveSource, m_LiveSource->referenceCount());
@@ -100,7 +101,7 @@ void ADTSMainSource::incomingDataHandler1()
 
 		if(m_LiveSource->GetAudioFrame(&pData, datalen, frameHeader))
 		{
-			//			LOGI_print("datalen:%d", datalen);
+			m_nullTimes = 0;
 
 			fFrameSize = datalen - 7;
 			if(fFrameSize > fMaxSize)
@@ -138,7 +139,14 @@ void ADTSMainSource::incomingDataHandler1()
 		}
 		else
 		{
-//			LOGE_print("GetVideoFrame error");
+			m_nullTimes++;
+			if(m_nullTimes > 2000)	//5*1000*2000 ms = 10s
+			{
+				LOGW_print("no data too for long time");
+				handleClosure();
+				return;
+			}
+
 			nextTask() = envir().taskScheduler().scheduleDelayedTask(5*1000,
 				(TaskFunc*)incomingDataHandler, this);
 		}

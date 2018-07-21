@@ -31,6 +31,7 @@ H264LiveVideoSource::H264LiveVideoSource(UsageEnvironment& env,
 	m_front_nalu_type = 0;
 	m_front_nalu_len = 0;
 	m_ref = -1;
+	m_nullTimes = 0;
 	m_LiveSource->incrementReferenceCount();
 	
 	LOGI_print("H264LiveVideoSource m_LiveSource:%p referenceCount:%d ", m_LiveSource, m_LiveSource->referenceCount());
@@ -75,7 +76,8 @@ void H264LiveVideoSource::incomingDataHandler1()
 		GosFrameHead frameHeader;
 		
 		if(m_LiveSource->GetVideoFrame(&pData, datalen, frameHeader))
-		{			
+		{		
+			m_nullTimes = 0;
 			unsigned char* data = pData;
 			
 			NALU_t nalu;
@@ -123,6 +125,13 @@ void H264LiveVideoSource::incomingDataHandler1()
 		}
 		else
 		{
+			m_nullTimes++;
+			if(m_nullTimes > 2000)	//5*1000*2000 ms = 10s
+			{
+				LOGW_print("no data too for long time");
+				handleClosure();
+    			return;
+			}
 			nextTask() = envir().taskScheduler().scheduleDelayedTask(5*1000,
 			(TaskFunc*)incomingDataHandler, this);
 		}

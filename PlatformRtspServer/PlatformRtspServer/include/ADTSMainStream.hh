@@ -32,6 +32,7 @@ private:
     GssLiveConn* m_LiveSource;
 	unsigned int uSecond;
 	unsigned int m_ref;
+	int						m_nullTimes;
 };
 
 class ADTSMainServerMediaSubsession: public OnDemandServerMediaSubsession{

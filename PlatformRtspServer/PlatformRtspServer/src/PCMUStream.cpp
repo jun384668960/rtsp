@@ -42,6 +42,7 @@ PCMUStream::PCMUStream(UsageEnvironment& env, char* uid, u_int8_t profile,u_int8
 	//LOGI_print("new GssLiveConn done %p",m_LiveSource);
 
 	m_ref = -1;
+	m_nullTimes = 0;
 	m_LiveSource->incrementReferenceCount();
 	LOGI_print("PCMUStream m_LiveSource:%p referenceCount:%d ", m_LiveSource, m_LiveSource->referenceCount());
 }
@@ -81,7 +82,7 @@ void PCMUStream::incomingDataHandler1()
 		GosFrameHead frameHeader;
 		if(m_LiveSource->GetAudioFrame(&pData, datalen, frameHeader))
 		{
-//			LOGI_print("datalen:%d", datalen);
+			m_nullTimes = 0;
 			
 			fFrameSize = datalen;
 			if(fFrameSize > fMaxSize)
@@ -121,7 +122,13 @@ void PCMUStream::incomingDataHandler1()
 		}
 		else
 		{
-//			LOGE_print("GetVideoFrame error");
+			m_nullTimes++;
+			if(m_nullTimes > 2000)	//5*1000*2000 ms = 10s
+			{
+				LOGW_print("no data too for long time");
+				handleClosure();
+				return;
+			}
 			nextTask() = envir().taskScheduler().scheduleDelayedTask(5*1000,
 			(TaskFunc*)incomingDataHandler, this);
 		}

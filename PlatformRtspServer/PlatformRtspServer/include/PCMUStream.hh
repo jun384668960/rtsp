@@ -33,6 +33,7 @@ private:
 	char fConfigStr[5];
     GssLiveConn* m_LiveSource;
 	unsigned int m_ref;
+	int						m_nullTimes;
 };
 
 

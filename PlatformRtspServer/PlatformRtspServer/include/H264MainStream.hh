@@ -47,7 +47,8 @@ private:
 	H264VideoStreamFramer* m_framer;
 	int					   m_front_nalu_type;
 	int					   m_front_nalu_len;
-	unsigned int		m_ref;
+	unsigned int		   m_ref;
+	int						m_nullTimes;							
  };
  
 class H264LiveVideoServerMediaSubsession: public OnDemandServerMediaSubsession{
