@@ -358,30 +358,32 @@ void RTSPServer::RTSPClientConnection
 	strcpy(fStreamName,urlTotalSuffix);
 
 	//////////////////////////////////////////////////////////////////////////
-	if(strstr(fStreamName,"uid=") != NULL)
-	{
-		//printf("find uid= from fstreamname\n");
-		char uid[64] = {0};
-		sscanf(fStreamName,"uid=%s",uid);
-		if(fGssLiveConn == NULL)
+	do{
+		if(strstr(fStreamName,"uid=") != NULL)
 		{
-			fGssLiveConn = new GssLiveConn(GssLiveConn::m_sGlobalInfos.domainDispath, GssLiveConn::m_sGlobalInfos.port, uid,true);
-//			LOG_INFO("~RTSPClientConnection fGssLiveConn:%p referenceCount:%d", fGssLiveConn, fGssLiveConn->referenceCount());
+			//printf("find uid= from fstreamname\n");
+			char uid[64] = {0};
+			sscanf(fStreamName,"uid=%s",uid);
+			if(fGssLiveConn == NULL)
+			{
+				fGssLiveConn = new GssLiveConn(GssLiveConn::m_sGlobalInfos.domainDispath, GssLiveConn::m_sGlobalInfos.port, uid,true);
+//				LOG_INFO("~RTSPClientConnection fGssLiveConn:%p referenceCount:%d", fGssLiveConn, fGssLiveConn->referenceCount());
+			}
+			if(fGssLiveConn && !fGssLiveConn->Start() && !fGssLiveConn->IsConnected() )
+			{
+				//printf("XXXXXXXXXX start fGssLiveConn failed , liveConn(%p) of %s\n",fGssLiveConn,fStreamName);
+				LOG_ERROR("[DESCRIBE] connect device %s failed!",uid);
+				break;
+			}
+			//printf("start  liveconn success , liveConn(%p) of %s\n",fGssLiveConn,fStreamName);
+			session = fOurServer.lookupServerMediaSession(urlTotalSuffix,this);
 		}
-		if(fGssLiveConn && !fGssLiveConn->Start() && !fGssLiveConn->IsConnected() )
+		else
 		{
-			//printf("XXXXXXXXXX start fGssLiveConn failed , liveConn(%p) of %s\n",fGssLiveConn,fStreamName);
-			LOG_ERROR("[DESCRIBE] connect device %s failed!",uid);
-			break;
+			//printf("start  normal describe .of %s\n",urlTotalSuffix);
+			session = fOurServer.lookupServerMediaSession(urlTotalSuffix);
 		}
-		//printf("start  liveconn success , liveConn(%p) of %s\n",fGssLiveConn,fStreamName);
-		session = fOurServer.lookupServerMediaSession(urlTotalSuffix,this);
-	}
-	else
-	{
-		//printf("start  normal describe .of %s\n",urlTotalSuffix);
-		session = fOurServer.lookupServerMediaSession(urlTotalSuffix);
-	}
+	}while(0);
 	//////////////////////////////////////////////////////////////////////////
 	
     if (session == NULL) {

@@ -233,6 +233,7 @@ protected:
 	bool DelPlayTime(const char* guid);
 public:
 	static bool UpdatePlayTime(int onceTime, const char* guid);
+	static bool ResetPlayTime(const char* guid);
 
 private:
 	MyClock m_lockVideo;

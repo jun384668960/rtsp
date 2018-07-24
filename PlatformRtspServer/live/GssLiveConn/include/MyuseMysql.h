@@ -16,6 +16,7 @@ public:
 	//rtsp/hls 单个guid时长
 	bool QueryTimesByGuid(const char* tablename, const char* guid, int & timeSec, unsigned int & starttime);
 	bool UpdateTimesByGuid(const char* tablename, const char* guid, int timeSec, unsigned int starttime); //update时，没有记录，会插入该记录
+	bool ResetTimesByGuid(const char* tablename, const char* guid, int timeSec, unsigned int starttime);
 	bool InsertTimesByGuid(const char* tablename, const char* guid, int timeSec, unsigned int starttime);
 	//////////////////////////////////////////////////////////////////////////
 

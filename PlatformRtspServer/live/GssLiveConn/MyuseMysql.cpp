@@ -112,6 +112,66 @@ bool MyuseMysql::QueryTimesByGuid(const char* tablename, const char* guid, int &
 	return bSuc;
 }
 
+bool MyuseMysql::ResetTimesByGuid(const char* tablename, const char* guid, int timeSec, unsigned int starttime)
+{
+	bool bSuc = false;
+	do 
+	{
+		if (tablename  == NULL)
+		{
+			LOG_ERROR("MyuseMysql::QueryTimesByGuid invalid params!, tablename = %s, guid = %s\n",tablename, guid);
+			break;
+		}
+
+		char pSql[256] = {0};
+		char timestr[10] = {0};
+		char starttimestr[64] = {0};
+		snprintf(timestr,sizeof(timestr),"%d",timeSec);
+		snprintf(starttimestr,sizeof(starttimestr),"%u",starttime);
+		if(starttime == 0) //
+		{
+			if(guid != NULL)
+			{
+				snprintf(pSql,sizeof(pSql),"update %s set %s = \'%s\' where %s = \'%s\'",tablename, 
+					g_tableDevRec[e_table_device_rec_col_time],timestr,
+					g_tableDevRec[e_table_device_rec_col_guid],guid);
+			}
+			else
+			{
+				snprintf(pSql,sizeof(pSql),"update %s set %s = \'%s\'",tablename, 
+					g_tableDevRec[e_table_device_rec_col_time],timestr);
+			}
+		}
+		else
+		{
+			if(guid != NULL)
+			{
+				snprintf(pSql,sizeof(pSql),"update %s set %s = \'%s\', %s=\'%s\' where %s = \'%s\'",tablename, 
+					g_tableDevRec[e_table_device_rec_col_time],timestr,
+					g_tableDevRec[e_table_device_rec_col_starttime],starttimestr,
+					g_tableDevRec[e_table_device_rec_col_guid],guid);
+			}
+			else
+			{
+				snprintf(pSql,sizeof(pSql),"update %s set %s = \'%s\', %s=\'%s\'",tablename, 
+					g_tableDevRec[e_table_device_rec_col_time],timestr,
+					g_tableDevRec[e_table_device_rec_col_starttime],starttimestr);
+			}
+			
+		}
+		if(!m_sql->ExeSql(pSql))
+		{
+			LOG_ERROR("exe sql failed : %s",pSql);
+			break;
+		}
+		
+		bSuc = true;
+	} while (false);
+
+	return bSuc;
+
+}
+
 bool MyuseMysql::UpdateTimesByGuid(const char* tablename, const char* guid, int timeSec, unsigned int starttime)
 {
 	bool bSuc = false;

@@ -30,6 +30,8 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include <string.h>
 #include <stdio.h>
 
+#define THIS_VERSION "V1.0.4"
+
 int g_loglvl = 15;
 int g_livesecs = 0;
 int g_daylivemins = 0;

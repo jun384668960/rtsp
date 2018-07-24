@@ -22,6 +22,34 @@ pthread_t GssLiveConn::m_spthread = 0;
 #define TABLE_DEVICE_REC "device_rec"
 #define ONE_DAY_SEC (24*60*60)
 
+static bool s_isTimeReset = false;
+static bool IsResetTime()
+{
+	time_t t;
+    struct tm *gmt;
+    t = time(NULL);
+    gmt = gmtime(&t);
+	printf("sec:%d min:%d hour:%d\n", gmt->tm_sec, gmt->tm_min, gmt->tm_hour);
+	if(gmt->tm_min == 0 && gmt->tm_hour == 0)
+	{
+		if(!s_isTimeReset)
+		{
+			LOG_WARN("it's time to reset!");
+			s_isTimeReset = true;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		s_isTimeReset = false;
+		return false;
+	}
+}
+
 static void* ThreadUpdatePlayTimeToMysql(void *arg)
 {
 	int nCounts = 1;
@@ -41,6 +69,11 @@ static void* ThreadUpdatePlayTimeToMysql(void *arg)
 			GssLiveConn::m_sGlobalInfos.lock.Unlock();
 		}
 
+		//如果达到清零时间
+		if(IsResetTime())
+		{//reset all uid time
+			GssLiveConn::ResetPlayTime(NULL);
+		}
 		sleep(1);
 	}
 	
@@ -748,6 +781,30 @@ bool GssLiveConn::UpdatePlayTime(int onceTime, const char* guid)
 
 	return bsuc;
 }
+
+bool GssLiveConn::ResetPlayTime(const char* guid)
+{
+	bool bsuc = false;
+	do 
+	{
+		PublicMySql *pSqlp = GssLiveConn::m_smysqlpool->GetConnection();
+		if(pSqlp)
+		{
+			MyuseMysql useSql(pSqlp);
+			unsigned int starttime = now_ms_time()/1000;
+			bsuc = useSql.ResetTimesByGuid(TABLE_DEVICE_REC, guid, 0, starttime);
+			GssLiveConn::m_smysqlpool->ReleaseConnection(pSqlp);
+		}
+		else
+		{
+			LOG_ERROR("GssLiveConn::UpdatePlayTime failed, get sql connection failed!");
+		}
+
+	} while (false);
+
+	return bsuc;
+}
+
 
 bool GssLiveConn::AddNewPlayTime(const char* guid)
 {
