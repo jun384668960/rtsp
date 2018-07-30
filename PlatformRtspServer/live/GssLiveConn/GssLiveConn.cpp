@@ -918,7 +918,7 @@ bool GssLiveConn::GlobalInit(	const char* pserver, const char* plogpath, int log
 	if (plogpath)
 	{
 		strcpy(GssLiveConn::m_sGlobalInfos.logs,plogpath);
-		LogInit(GssLiveConn::m_sGlobalInfos.logs,"live555",20000);
+		LogInit(GssLiveConn::m_sGlobalInfos.logs,type==e_gss_conn_type_rtsp?"rtsp_":"hls_",20000);
 		LogSetLevel(loglvl);
 	}
 	GssLiveConn::m_sGlobalInfos.type = type;

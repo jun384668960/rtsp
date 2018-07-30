@@ -14,6 +14,7 @@ CFLAG := -DALLOW_SERVER_PORT_REUSE -Wno-write-strings \
 BINS := rtspServer
 
 SRCS := $(wildcard ./src/*.cpp)
+SRCS += $(wildcard ./src/*.c)
 OBJS := $(wildcard ./*.o ./src/*.o)
 
 all: $(BINS)

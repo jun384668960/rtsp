@@ -24,313 +24,177 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "gss_transport.h" 
 #include "utils_log.h"
 #include "TlsSocketHelper.hh"
+#include "inifile.h"
 
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-#define THIS_VERSION "V1.0.4"
+#define THIS_VERSION "V1.0.5"
+#define GSS_CONF_NAME		"gss_globle.conf"
 
-int g_loglvl = 15;
-int g_livesecs = 0;
-int g_daylivemins = 0;
-char g_mysqlPwd[1024] = {0};
-char g_logpath[1024] = {0};
-char g_dipatchServer[1024] = {0};
-int g_enablelog = 1;
-char g_certPath[256] = {0};
-char g_keyPath[256] = {0};
-int g_bTlsSupport = 0;
-
-enum {
-	type_opt_help = 0,
-	type_opt_dispath,
-	type_opt_cert,
-	type_opt_key,
-	type_opt_log,
-	type_opt_disable_log,
-	type_opt_loglvl,
-	type_opt_livesecs,
-	type_opt_daylivemins,
-	type_opt_pmysql,
-	type_opt_count,
-};
-
-char g_optval[type_opt_count][20] = {
-	"--help",
-	"--dispatch",
-	"--cert",
-	"--key",
-	"--log",
-	"--disable_log",
-	"--loglvl",
-	"--livesecs",
-	"--daylivemins",
-	"--pmysql",
-};
-
-
-void PrintHelp()
+typedef struct gss_globel_conf_T
 {
-	printf("argc >= 2, Dispatch server address must be specified\n"
-		"%s\n"
-		"%-15s %-25s [DISPATCH SERVER] -> ex : \"120.34.23.33:6001\"\n"
-		"%-15s %-25s [PATH] -> ex: \"cert.pem\",The certificates must be in PEM format \n"
-		"%-15s %-25s [PATH] -> ex: \"key.pem\",The Private key must be in PEM format\n"
-		"%-15s %-25s [PATH] -> ex /var/log/ or log/, the director must be exist; default path = ./\n"
-		"%-15s %-25s [yes/no] ->default log is opened, use this option to disable log\n"
-		"%-15s %-25s [VALUE] -> [1->Error, 2 -> warn, 4 -> info, 8 -> debug], combination this value\n"
-		"%-15s %-25s [SECS] -> keep alive in seconds\n"
-		"%-15s %-25s [STRING] -> mysql root password\n" ,
-		g_optval[type_opt_help],
-		g_optval[type_opt_dispath],"= [DISPATCH SERVER]",
-		g_optval[type_opt_cert],"= [PATH]",
-		g_optval[type_opt_key],"= [PATH]",
-		g_optval[type_opt_log],"= [PATH]",
-		g_optval[type_opt_disable_log],"= [yes/no]",
-		g_optval[type_opt_loglvl],"= [VALUE]",
-		g_optval[type_opt_livesecs],"= [SECS]",
-		g_optval[type_opt_pmysql],"= [STRING]"
-	);
-}
+	char 	server[128];		// gss分派服务器地址
+	char 	logpath[128];		// 日志存放目录
+	int 	loglvl;				// 日志级别
+	char 	sqlHost[64];		// mysql地址，计时数据库
+	int 	sqlPort;			// mysql端口
+	char	sqlUser[64]; 		// mysql用户名
+	char	sqlPasswd[64];		// mysql密码
+	char	dbName[64];			// mysql数据库名
+	int 	maxCounts;			// 连接池中数据库连接的最大数,假设有n个业务线程使用该连接池，建议:maxCounts=n,假设n>20, 建议maxCounts=20
+	int 	maxPlayTime;		// 一天内最大播放时长，单位秒
+	int 	type;				// 类型0:rtsp 1:hls
+	int		live_sec;			// 单次连接最大保活时长，超时会主动断开
+	int		tls_support;		// 是否支持TLS
+	char	cert[64];			// 证书
+	char	key[64];			// 秘钥
+}gss_globel_conf_t;
 
-int GetOpt(int type, int argc, char** argv)
+int rtsp_load_config(gss_globel_conf_t* conf)
 {
-	int rlt = -1;
-	int start = 0;
-	int isHasequal = 0;
-	char* pFinddest = NULL;
-	for (int i = 1; i < argc; i++)
-	{
-		if(start == 0)
-		{
-			if (strstr(argv[i],g_optval[type]) != NULL)
-			{
-				if(type == type_opt_help)
-				{
-					rlt = 0;
-					break;
-				}
-				else
-				{
-					start = 1;
-					char* pFind = strstr(argv[i],"=");
-					if (pFind != NULL)
-					{
-						if (*(pFind+1) != '\0')
-						{
-							pFinddest = pFind + 1;
-						}
-						else
-						{
-							if ( i + 1 < argc	)
-							{
-								pFinddest = argv[i+1];
-							}
-						}
-						break;
-					}
-					else
-					{
-
-					}
-				}
-			}
-
-		}
-		else
-		{
-			if(strcmp("=",argv[i]) == 0)
-			{
-				if ( i + 1 < argc	)
-				{
-					pFinddest = argv[i+1];
-				}
-			}
-			else
-			{
-				char* pFind = strstr(argv[i],"=");
-				if (pFind && (*(pFind+1) != '\0'))
-				{
-					pFinddest = pFind + 1;
-				}
-			}
-			break;
-		}
-	}
-
-	if(pFinddest)
-	{
-		switch(type)
-		{
-		case type_opt_dispath:
-			strcpy(g_dipatchServer,pFinddest);
-			break;
-		case type_opt_cert:
-			strcpy(g_certPath,pFinddest);
-			break;
-		case type_opt_key:
-			strcpy(g_keyPath,pFinddest);
-			break;
-		case type_opt_log:
-			strcpy(g_logpath,pFinddest);
-			break;
-		case type_opt_loglvl:
-			g_loglvl = atoi(pFinddest);
-			break;
-		case type_opt_livesecs:
-			g_livesecs = atoi(pFinddest);
-			break;
-		case type_opt_daylivemins:
-			g_daylivemins = atoi(pFinddest);
-			break;
-		case type_opt_pmysql:
-			strcpy(g_mysqlPwd,pFinddest);
-			break;
-		case type_opt_disable_log:
-			{
-				char pTmp[1024] = {0};
-				strcpy(pTmp,pFinddest);
-				for (int i = 0; i < strlen(pTmp); i++)
-				{
-					tolower(pTmp[i]);
-				}
-
-				if(strcmp("yes",pTmp) == 0)
-				{
-					g_enablelog = 1;
-				}
-				else
-				{
-					g_enablelog = 0;
-				}
-			}
-
-			break;
-		}
-		rlt = 0;
-	}
-
-	return rlt;
-}
-
-int ParseArgs(int argc, char** argv)
-{
-	if (argc	< 2 || GetOpt(type_opt_help,argc,argv) == 0)
-	{
-		PrintHelp();
-		return -1;
-	}
-
-	if( GetOpt(type_opt_dispath,argc,argv) != 0)
-	{
-		LOGI_print("no dispatch server to be specified");
-		return -1;
-	}
-
-	if( GetOpt(type_opt_cert,argc,argv) != 0)
-	{
-		g_bTlsSupport = 0;
-		LOGI_print("no certificates file to be specified, program will not support tls");
-	}
-	else
-	{
-		g_bTlsSupport = 1;
-	}
-
-	if( GetOpt(type_opt_key,argc,argv) != 0)
-	{
-		g_bTlsSupport = 0;
-		LOGI_print("no private key file to be specified, program will not support tls");
-	}
-	else
-	{
-		g_bTlsSupport = 1;
-		LOGI_print("program will support tls, tls default port is 443!");
-	}
-
-	if( GetOpt(type_opt_livesecs,argc,argv) != 0)
-	{
-		LOGI_print("no live secs limit\n");
-	}
-	else
-	{
-		LOGI_print("live secs limits in %d sec", g_livesecs);
-	}
-
-	if( GetOpt(type_opt_pmysql,argc,argv) != 0)
-	{
-		LOGI_print("mysql root password no set");
-		return -1;
-	}
-	else
-	{
-		LOGI_print("mysql root password :%s", g_mysqlPwd);
-	}
+//	int read_profile_string( const char *section, const char *key,const char *default_value, char *value, int size,  const char *file);
+//	int read_profile_int( const char *section, const char *key,int default_value, const char *file);
+	char ini_file[128] = {0};
+	char ptemp[128] = {0};
+	int	ret;
 	
-	for (int i = type_opt_log; i< type_opt_count; i++)
+	sprintf(ini_file, "%s", GSS_CONF_NAME);
+	ret = read_profile_string("common", "server", "", ptemp, sizeof(ptemp), ini_file);
+	if(ret == 0 || ptemp[0]=='\0')
 	{
-		GetOpt(i,argc	, argv);
+		LOGM_print("server not set");
+		exit(-1);
+	}
+	else
+	{
+		strcpy(conf->server, ptemp);
+		LOGI_print("server set :%s ", conf->server);
+	}
+
+	ret = read_profile_string("common", "logpath", "logs/", ptemp, sizeof(ptemp), ini_file);
+	if(ret == 0 || ptemp[0]=='\0')
+	{
+		LOGM_print("logpath not set");
+		exit(-1);
+	}
+	else
+	{
+		strcpy(conf->logpath, ptemp);
+		LOGI_print("logpath set :%s ", conf->logpath);
+	}
+
+	conf->loglvl = read_profile_int("common", "loglvl", 1, ini_file);
+	LOGI_print("loglvl set :%d ", conf->loglvl);
+
+	ret = read_profile_string("common", "sqlHost", "", ptemp, sizeof(ptemp), ini_file);
+	if(ret == 0 || ptemp[0]=='\0')
+	{
+		LOGM_print("sqlHost not set");
+		exit(-1);
+	}
+	else
+	{
+		strcpy(conf->sqlHost, ptemp);
+		LOGI_print("sqlHost set :%s ", conf->sqlHost);
+	}
+
+	conf->sqlPort = read_profile_int("common", "sqlPort", 3306, ini_file);
+	LOGI_print("sqlPort set :%d ", conf->sqlPort);
+
+	ret = read_profile_string("common", "sqlUser", "", ptemp, sizeof(ptemp), ini_file);
+	if(ret == 0 || ptemp[0]=='\0')
+	{
+		LOGM_print("sqlUser not set");
+		exit(-1);
+	}
+	else
+	{
+		strcpy(conf->sqlUser, ptemp);
+		LOGI_print("sqlUser set :%s ", conf->sqlUser);
+	}
+
+	ret = read_profile_string("common", "sqlPasswd", "", ptemp, sizeof(ptemp), ini_file);
+	if(ret == 0 || ptemp[0]=='\0')
+	{
+		LOGM_print("sqlPasswd not set");
+		exit(-1);
+	}
+	else
+	{
+		strcpy(conf->sqlPasswd, ptemp);
+		LOGI_print("sqlPasswd set :%s ", conf->sqlPasswd);
+	}
+
+	ret = read_profile_string("common", "dbName", "", ptemp, sizeof(ptemp), ini_file);
+	if(ret == 0 || ptemp[0]=='\0')
+	{
+		LOGM_print("dbName not set");
+		exit(-1);
+	}
+	else
+	{
+		strcpy(conf->dbName, ptemp);
+		LOGI_print("dbName set :%s ", conf->dbName);
+	}
+
+	conf->maxCounts = read_profile_int("common", "maxCounts", 4, ini_file);
+	LOGI_print("maxCounts set :%d ", conf->maxCounts);
+	conf->maxPlayTime = read_profile_int("common", "maxPlayTime", 60, ini_file);
+	LOGI_print("maxPlayTime set :%d ", conf->maxPlayTime);
+	conf->type = read_profile_int("common", "type", 1, ini_file);
+	LOGI_print("type set :%d ", conf->type);
+	conf->live_sec = read_profile_int("common", "live_sec", 1, ini_file);
+	LOGI_print("live_sec set :%d ", conf->live_sec);
+
+	conf->tls_support = read_profile_int("common", "tls_support", 1, ini_file);
+	LOGI_print("tls_support set :%d ", conf->tls_support);
+
+	ret = read_profile_string("common", "cert", "", ptemp, sizeof(ptemp), ini_file);
+	if(ret == 0 || ptemp[0]=='\0')
+	{
+		LOGM_print("dbName not set");
+		exit(-1);
+	}
+	else
+	{
+		strcpy(conf->cert, ptemp);
+		LOGI_print("cert set :%s ", conf->cert);
+	}
+
+	ret = read_profile_string("common", "key", "", ptemp, sizeof(ptemp), ini_file);
+	if(ret == 0 || ptemp[0]=='\0')
+	{
+		LOGM_print("dbName not set");
+		exit(-1);
+	}
+	else
+	{
+		strcpy(conf->key, ptemp);
+		LOGI_print("key set :%s ", conf->key);
 	}
 
 	return 0;
 }
 
+
 int main(int argc, char** argv) {
 
-  	int ret;
-	int daylivemins = 0;
-	int liveseconds = 0;
-	if (ParseArgs(argc,argv) != 0)
-	{
-		return -1;
-	}
+	gss_globel_conf_t conf;
+  	rtsp_load_config(&conf);
 	
-	char* pLogPath = NULL;
-	if(g_enablelog)
-		pLogPath = g_logpath;
-	if(g_livesecs > 0)
-	{
-		liveseconds = g_livesecs;
-	}
-	else
-	{
-		liveseconds = 600;
-	}
-	
-	if(g_daylivemins > 0)
-	{
-		daylivemins = g_daylivemins;
-	}
-	else
-	{
-		daylivemins = 60;
-	}
-	
-	GssLiveConn::SetForceLiveSec(liveseconds);
-	LOGI_print("set single live seconds:%d day live minutes:%d", liveseconds, daylivemins);
-	
- 	if(!GssLiveConn::GlobalInit(g_dipatchServer,pLogPath,g_loglvl,"127.0.0.1",3306,"root",g_mysqlPwd,"rtsp_db",4,daylivemins))
+	GssLiveConn::SetForceLiveSec(conf.live_sec);
+
+	bool result = GssLiveConn::GlobalInit(conf.server, conf.logpath, conf.loglvl,
+					conf.sqlHost, conf.sqlPort, conf.sqlUser, conf.sqlPasswd, conf.dbName,
+					conf.maxCounts, conf.maxPlayTime, (EGSSCONNTYPE)conf.type);
+ 	if(!result)
  	{
  		LOGE_print("GlobalInit error");
- 		return ret;
+ 		return result;
  	}
-
-// 	ret = p2p_init(NULL);
-// 	if(ret != 0)
-// 	{
-// 		LOGE_print("p2p_init error");
-// 		return ret;
-// 	}
-// 
-// 	p2p_log_set_level(0);
-// 	
-// 	//设置全局属性
-// 	int maxRecvLen = 1024*1024;
-// 	int maxClientCount = 10;
-// 	p2p_set_global_opt(P2P_MAX_CLIENT_COUNT, &maxClientCount, sizeof(int));
-// 	p2p_set_global_opt(P2P_MAX_RECV_PACKAGE_LEN, &maxRecvLen, sizeof(int));
 	
   // Begin by setting up our usage environment:
   TaskScheduler* scheduler = BasicTaskScheduler::createNew();
@@ -350,10 +214,10 @@ int main(int argc, char** argv) {
   // and then with the alternative port number (8554):
   RTSPServer* rtspServer;
   portNumBits rtspServerPortNum = 554;
-  if(g_bTlsSupport)
+  if(conf.tls_support == 1)
   {
 	  TlsHelper_Init();
-	  TlsHelper_InitServer(NULL,NULL,g_certPath,g_keyPath);
+	  TlsHelper_InitServer(NULL,NULL,conf.cert,conf.key);
   }
   rtspServer = DynamicRTSPServer::createNew(*env, rtspServerPortNum, authDB);
   if (rtspServer == NULL) {
@@ -397,7 +261,7 @@ int main(int argc, char** argv) {
   // port numbers (8000 and 8080).
 
   bool brtspOverHttp = false;
-  if(g_bTlsSupport)
+  if(conf.tls_support == 1)
   {
 	  if( rtspServer->setUpTunnelingOverHTTP(443) )
 		  brtspOverHttp = true;
@@ -418,9 +282,9 @@ int main(int argc, char** argv) {
 
   env->taskScheduler().doEventLoop(); // does not return
 
-  if(g_bTlsSupport)
+  if(conf.tls_support == 1)
 	  TlsHelper_UnInit();
   GssLiveConn::GlobalUnInit();
-//   p2p_uninit();
+
   return 0; // only to prevent compiler warning
 }
