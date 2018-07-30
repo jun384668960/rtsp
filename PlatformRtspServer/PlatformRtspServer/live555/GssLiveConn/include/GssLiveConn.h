@@ -158,13 +158,25 @@ public:
 	GosFrameHead m_frameHeader;
 };
 
+typedef enum {
+	e_gss_conn_type_rtsp = 0,
+	e_gss_conn_type_hls,
+	e_gss_conn_type_count,
+}EGSSCONNTYPE;
+
+typedef struct _rtspplaytime {
+	unsigned int time;
+	bool bDel;
+}RtspPlayTime;
+
 typedef struct _globalInfo {
 	char domainDispath[256];
 	unsigned short port;
 	char logs[1024];
 	int maxPlayTime;
 	MyClock lock;
-	std::map<std::string,unsigned int> mapTimes;
+	std::map<std::string,RtspPlayTime> mapTimes;
+	EGSSCONNTYPE type;
 }SGlobalInfo;
 
 class GssLiveConn { //调用此类进行使用之前，先调用GlobalInit进行全局操作的初始化
@@ -173,7 +185,8 @@ public:
 										const char* sqlHost, int sqlPort, //数据的HOST,PORT
 										const char* sqlUser, const char* sqlPasswd, const char* dbName, //数据库登录用户名和密码,数据库名称，
 										int maxCounts, //连接池中数据库连接的最大数,假设有n个业务线程使用该连接池，建议:maxCounts=n,假设n>20, 建议maxCounts=20
-										int maxPlayTime); //最大播放时长(单位分钟)
+										int maxPlayTime, //最大播放时长(单位分钟)
+										EGSSCONNTYPE type = e_gss_conn_type_rtsp); //type,
 	static void GlobalUnInit();
 	static bool SetForceLiveSec(int sec);
 	
@@ -233,7 +246,8 @@ protected:
 	bool DelPlayTime(const char* guid);
 public:
 	static bool UpdatePlayTime(int onceTime, const char* guid);
-	static bool ResetPlayTime(const char* guid);
+	static bool ResetPlayTime(const char* guid, int nCol, int nColValue);
+	static int GetColByType();
 
 private:
 	MyClock m_lockVideo;
@@ -267,6 +281,7 @@ private:
 	bool				m_forcePause;
 	unsigned int		m_liveRef;
 	int m_forceLiveSecLeftTime;
+
 public:
 	static bool m_isInitedGlobal;
 	static SGlobalInfo 	m_sGlobalInfos;

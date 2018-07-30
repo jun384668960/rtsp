@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 bool GssLiveConn::m_isInitedGlobal = false;
-int	 GssLiveConn::m_forceLiveSec = 0;
+int	 GssLiveConn::m_forceLiveSec = 600;
 
 SGlobalInfo GssLiveConn::m_sGlobalInfos;
 MySqlPool* GssLiveConn::m_smysqlpool = NULL;
@@ -29,7 +29,7 @@ static bool IsResetTime()
     struct tm *gmt;
     t = time(NULL);
     gmt = gmtime(&t);
-	printf("sec:%d min:%d hour:%d\n", gmt->tm_sec, gmt->tm_min, gmt->tm_hour);
+//	printf("sec:%d min:%d hour:%d\n", gmt->tm_sec, gmt->tm_min, gmt->tm_hour);
 	if(gmt->tm_min == 0 && gmt->tm_hour == 0)
 	{
 		if(!s_isTimeReset)
@@ -55,16 +55,20 @@ static void* ThreadUpdatePlayTimeToMysql(void *arg)
 	int nCounts = 1;
 	while (GssLiveConn::m_isInitedGlobal)
 	{
-		if((nCounts++%30)==0)
+//		if((nCounts++%30)==0)
 		{
 			GssLiveConn::m_sGlobalInfos.lock.Lock();
 			unsigned int nowTime = now_ms_time()/1000;
-			std::map<std::string,unsigned int>::iterator it = GssLiveConn::m_sGlobalInfos.mapTimes.begin();
-			for ( ; it != GssLiveConn::m_sGlobalInfos.mapTimes.end(); it++)
+			std::map<std::string,RtspPlayTime>::iterator it = GssLiveConn::m_sGlobalInfos.mapTimes.begin();
+			for ( ; it != GssLiveConn::m_sGlobalInfos.mapTimes.end(); )
 			{
-				int tmpSec = nowTime - it->second;
-				it->second = nowTime;
+				int tmpSec = nowTime - it->second.time;
+				it->second.time = nowTime;
 				GssLiveConn::UpdatePlayTime(tmpSec,it->first.c_str());
+				if(it->second.bDel)
+					GssLiveConn::m_sGlobalInfos.mapTimes.erase(it++);
+				else
+					it++;
 			}
 			GssLiveConn::m_sGlobalInfos.lock.Unlock();
 		}
@@ -72,7 +76,7 @@ static void* ThreadUpdatePlayTimeToMysql(void *arg)
 		//如果达到清零时间
 		if(IsResetTime())
 		{//reset all uid time
-			GssLiveConn::ResetPlayTime(NULL);
+			GssLiveConn::ResetPlayTime(NULL,GssLiveConn::GetColByType(),0);
 		}
 		sleep(1);
 	}
@@ -557,6 +561,7 @@ bool GssLiveConn::AddVideoFrame( unsigned char* pData, int datalen )
 			{
 				printf("m_forcePause now\n");
 				m_forcePause = true;//标志，不在添加数据
+				GssLiveConn::DelPlayTime(m_uid);
 			}
 		}
 				
@@ -710,12 +715,13 @@ bool GssLiveConn::IsReachedMaxPlayTimeofDay(int theMaxTimeMin, const char* guid,
 			MyuseMysql useSql(pSqlp);
 			int maxSec;
 			unsigned int startMs;
+			int rtsptime;
 			unsigned int nowtimes = now_ms_time()/1000;
-			if (useSql.QueryTimesByGuid(TABLE_DEVICE_REC, guid, maxSec,startMs))
+			if (useSql.QueryTimesByGuid(TABLE_DEVICE_REC, guid, maxSec,startMs,GetColByType(),rtsptime))
 			{
 				if (nowtimes - startMs > ONE_DAY_SEC)
 				{
-					if( !useSql.UpdateTimesByGuid(TABLE_DEVICE_REC,guid,0,nowtimes) )
+					if( !useSql.UpdateTimesByGuid(TABLE_DEVICE_REC,guid,0,nowtimes,GetColByType(),0) )
 						LOG_ERROR("INSERT NEW RECORD FAILED, GUID = %s\n",guid);
 					bsuc = false;
 					leftTimeSec = theMaxTimeMin*60;
@@ -764,10 +770,12 @@ bool GssLiveConn::UpdatePlayTime(int onceTime, const char* guid)
 			MyuseMysql useSql(pSqlp);
 			int maxSec;
 			unsigned int startt;
-			if (useSql.QueryTimesByGuid(TABLE_DEVICE_REC, guid, maxSec,startt))
+			int rtsptime;
+			if (useSql.QueryTimesByGuid(TABLE_DEVICE_REC, guid, maxSec,startt,GetColByType(),rtsptime))
 			{
 				int insertSec = maxSec + onceTime;
-				bsuc = useSql.UpdateTimesByGuid(TABLE_DEVICE_REC, guid, insertSec, 0);
+				rtsptime += onceTime;
+				bsuc = useSql.UpdateTimesByGuid(TABLE_DEVICE_REC, guid, insertSec, 0,GetColByType(), rtsptime);
 			}
 
 			GssLiveConn::m_smysqlpool->ReleaseConnection(pSqlp);
@@ -782,7 +790,7 @@ bool GssLiveConn::UpdatePlayTime(int onceTime, const char* guid)
 	return bsuc;
 }
 
-bool GssLiveConn::ResetPlayTime(const char* guid)
+bool GssLiveConn::ResetPlayTime(const char* guid, int nCol, int nColValue)
 {
 	bool bsuc = false;
 	do 
@@ -792,7 +800,7 @@ bool GssLiveConn::ResetPlayTime(const char* guid)
 		{
 			MyuseMysql useSql(pSqlp);
 			unsigned int starttime = now_ms_time()/1000;
-			bsuc = useSql.ResetTimesByGuid(TABLE_DEVICE_REC, guid, 0, starttime);
+			bsuc = useSql.ResetTimesByGuid(TABLE_DEVICE_REC, guid, 0, starttime, nCol, nColValue);
 			GssLiveConn::m_smysqlpool->ReleaseConnection(pSqlp);
 		}
 		else
@@ -816,7 +824,10 @@ bool GssLiveConn::AddNewPlayTime(const char* guid)
 	else
 	{
 		GssLiveConn::m_sGlobalInfos.lock.Lock();
-		GssLiveConn::m_sGlobalInfos.mapTimes.insert(std::map<std::string,unsigned int>::value_type(guid,now_ms_time()/1000));
+		RtspPlayTime rtspT;
+		rtspT.time = now_ms_time()/1000;
+		rtspT.bDel = false;
+		GssLiveConn::m_sGlobalInfos.mapTimes.insert(std::map<std::string,RtspPlayTime>::value_type(guid,rtspT));
 		GssLiveConn::m_sGlobalInfos.lock.Unlock();
 	}
 	return bsuc;
@@ -832,10 +843,11 @@ bool GssLiveConn::DelPlayTime(const char* guid)
 	else
 	{
 		GssLiveConn::m_sGlobalInfos.lock.Lock();
-		std::map<std::string,unsigned int>::iterator it = GssLiveConn::m_sGlobalInfos.mapTimes.find(guid);
+		std::map<std::string,RtspPlayTime>::iterator it = GssLiveConn::m_sGlobalInfos.mapTimes.find(guid);
 		if (it != GssLiveConn::m_sGlobalInfos.mapTimes.end())
 		{
-			GssLiveConn::m_sGlobalInfos.mapTimes.erase(it);
+			(*it).second.bDel = true;
+			//GssLiveConn::m_sGlobalInfos.mapTimes.erase(it);
 		}		
 //		GssLiveConn::m_sGlobalInfos.mapTimes.insert(std::map<std::string,unsigned int>::value_type(guid,0));
 		GssLiveConn::m_sGlobalInfos.lock.Unlock();
@@ -868,7 +880,7 @@ bool GssLiveConn::IsKnownAudioType()
 bool GssLiveConn::GlobalInit(	const char* pserver, const char* plogpath, int loglvl, 
 												const char* sqlHost, int sqlPort,
 												const char* sqlUser, const char* sqlPasswd,
-												const char* dbName, int maxCounts, int maxPlayTime)
+												const char* dbName, int maxCounts, int maxPlayTime, EGSSCONNTYPE type)
 {
 	if(GssLiveConn::m_isInitedGlobal)
 		return true;
@@ -909,6 +921,7 @@ bool GssLiveConn::GlobalInit(	const char* pserver, const char* plogpath, int log
 		LogInit(GssLiveConn::m_sGlobalInfos.logs,"live555",20000);
 		LogSetLevel(loglvl);
 	}
+	GssLiveConn::m_sGlobalInfos.type = type;
 
 	if(!GssLiveConn::m_smysqlpool)
 	{
@@ -1000,4 +1013,25 @@ bool GssLiveConn::RequestLiveConnServer()
 	m_semt.UnInit();
 	destroy_gss_dispatch_requester(dispatcher);	
 	return bsuc;
+}
+
+int GssLiveConn::GetColByType()
+{
+	int nCol = 0;
+	switch (GssLiveConn::m_sGlobalInfos.type)
+	{
+	case e_gss_conn_type_rtsp:
+		{
+			nCol = e_table_device_rec_col_rtsp;
+		}
+		break;
+	case e_gss_conn_type_hls:
+		{
+			nCol = e_table_device_rec_col_hls;
+		}
+		break;
+	default:
+		nCol = e_table_device_rec_col_rtsp;
+	}
+	return nCol;
 }
