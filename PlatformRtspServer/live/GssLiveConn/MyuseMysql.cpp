@@ -85,21 +85,24 @@ bool MyuseMysql::QueryTimesByGuid(const char* tablename, const char* guid, int &
 		}
 
 		char pSql[256] = {0};
-		snprintf(pSql,sizeof(pSql),"select %s,%s,%s from %s where %s = \'%s\'",g_tableDevRec[e_table_device_rec_col_time],g_tableDevRec[e_table_device_rec_col_starttime],
+		snprintf(pSql,sizeof(pSql),"select %s,%s,%s from %s where %s = \'%s\'",
+			g_tableDevRec[e_table_device_rec_col_time],
+			g_tableDevRec[e_table_device_rec_col_starttime],
 			g_tableDevRec[nCol],
-			tablename,g_tableDevRec[e_table_device_rec_col_guid],guid);
+			tablename,
+			g_tableDevRec[e_table_device_rec_col_guid],guid);
 		if(!m_sql->ExeSql(pSql))
 		{
 			LOG_ERROR("exe sql failed : %s",pSql);
 			break;
 		}
 
-		int nCol = 0,nRow = 0;
-		if(m_sql->GetRowsCols(nRow,nCol) && nRow > 0 && nCol > 0)
+		int tCol = 0,nRow = 0;
+		if(m_sql->GetRowsCols(nRow,tCol) && nRow > 0 && tCol > 0)
 		{
 			//因为有唯一束缚，只可能有一行
 			timeSec = atoi(m_sql->GetResult(0,0));
-			if(nCol > 1)
+			if(tCol > 1)
 			{
 				sscanf(m_sql->GetResult(1,0),"%u",&starttime);
 				nColValue = atoi(m_sql->GetResult(2,0));
@@ -224,8 +227,8 @@ bool MyuseMysql::UpdateTimesByGuid(const char* tablename, const char* guid, int 
 			break;
 		}
 
-		int nCol = 0,nRow = 0;
-		if(m_sql->GetRowsCols(nRow,nCol) && nRow > 0 && nCol > 0)
+		int tCol = 0,nRow = 0;
+		if(m_sql->GetRowsCols(nRow,tCol) && nRow > 0 && tCol > 0)
 		{
 			if(atoi(m_sql->GetResult(0,0)) == 0) //表示更新对象有0个受影响，即数据库中没有该项
 				bSuc = InsertTimesByGuid(tablename,guid,timeSec,starttime,nCol,nColValue);
@@ -260,15 +263,17 @@ bool MyuseMysql::InsertTimesByGuid(const char* tablename, const char* guid, int 
 		char starttimestr[64] = {0};
 		snprintf(timestr,sizeof(timestr),"%d",timeSec);
 		snprintf(starttimestr,sizeof(starttimestr),"%u",starttime);
-		snprintf(pSql,sizeof(pSql),"insert into %s(id,guid,times,starttime,%s) values(0,\'%s\',\'%s\',\'%s\',%d)",g_tableDevRec[nCol],tablename, guid, timestr,starttimestr,nColValue);
+		snprintf(pSql,sizeof(pSql),"insert into %s(id,guid,times,starttime,%s) values(0,\'%s\',\'%s\',\'%s\',%d)",
+			tablename,g_tableDevRec[nCol], guid, timestr,starttimestr,nColValue);
+		printf("%s\n",pSql);
 		if(!m_sql->ExeSql(pSql))
 		{
 			LOG_ERROR("exe sql failed : %s",pSql);
 			break;
 		}
 
-		int nCol = 0,nRow = 0;
-		if(m_sql->GetRowsCols(nRow,nCol) && nRow > 0 && nCol > 0)
+		int tCol = 0,nRow = 0;
+		if(m_sql->GetRowsCols(nRow,tCol) && nRow > 0 && tCol > 0)
 		{
 			bSuc = true;
 		}
