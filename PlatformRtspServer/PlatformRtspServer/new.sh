@@ -27,6 +27,8 @@ id BIGINT NOT NULL AUTO_INCREMENT,
 guid VARCHAR(64) NOT NULL,
 times VARCHAR(64) NOT NULL,
 starttime int unsigned not null,
+rtsp int unsigned,
+hls int unsigned,
 PRIMARY KEY(id),
 UNIQUE KEY(guid));"
 
@@ -36,3 +38,6 @@ if [ $? -ne 0 ]
 then
  echo "create table ${DBNAME}.${TABLENAME} failed ..."
 fi
+
+#alter table device_rec add column rtsp int unsigned;
+#alter table device_rec add column hls int unsigned;

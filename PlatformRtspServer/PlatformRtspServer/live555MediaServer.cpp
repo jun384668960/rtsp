@@ -31,7 +31,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include <string.h>
 #include <stdio.h>
 
-#define THIS_VERSION "V1.0.5"
+#define THIS_VERSION 		"V1.1.1"
 #define GSS_CONF_NAME		"gss_globle.conf"
 
 typedef struct gss_globel_conf_T
@@ -229,10 +229,7 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  *env << "LIVE555 Media Server\n";
-  *env << "\tversion " << MEDIA_SERVER_VERSION_STRING
-       << " (LIVE555 Streaming Media library version "
-       << LIVEMEDIA_LIBRARY_VERSION_STRING << ").\n";
+  LOGI_print("Rtsp Server Version %s", THIS_VERSION);
 
   char* urlPrefix = rtspServer->rtspURLPrefix();
   *env << "Play streams from this server using the URL\n\t"
